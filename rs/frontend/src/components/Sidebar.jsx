@@ -1,53 +1,78 @@
 import React from 'react';
-import { FaBook, FaBookmark, FaClock, FaCog, FaTachometerAlt, FaSignOutAlt } from 'react-icons/fa';
-import { Link } from 'react-router-dom';
+import {
+  FaBook,
+  FaBookmark,
+  FaClock,
+  FaCog,
+  FaTachometerAlt,
+  FaSignOutAlt,
+} from 'react-icons/fa';
+import { Link, useLocation } from 'react-router-dom';
+import logoImage from '../assets/logo.png';
+import { useContext } from 'react';
+import { UserContext } from '../components/UserContext';
 
 const Sidebar = () => {
+  const location = useLocation();
+  const currentPath = location.pathname;
+
+  const navItems = [
+    { to: '/dashboard', icon: <FaTachometerAlt />, label: 'Dashboard' },
+    { to: '/my-resources', icon: <FaBook />, label: 'My Resources' },
+    { to: '/saved', icon: <FaBookmark />, label: 'Saved' },
+    { to: '/recent', icon: <FaClock />, label: 'Recent' },
+    { to: '/settings', icon: <FaCog />, label: 'Settings' },
+    { to: '/logout', icon: <FaSignOutAlt />, label: 'Logout' },
+  ];
+
   return (
-    <aside className="w-64 min-h-screen bg-white border-r shadow-sm flex flex-col justify-between">
+    <aside className="w-64 min-h-screen bg-white shadow-md flex flex-col justify-between">
       <div>
-        {/* Logo */}
-        <div className="px-6 py-6 border-b">
-          <h1 className="text-xl font-bold text-blue-600">NoteNest</h1>
-          <p className="text-xs text-gray-500 mt-1">Resource sharing platform</p>
+        <div className="px-4 py-4">
+          <div className="flex items-start gap-3">
+            <img
+              src={logoImage}
+              alt="NoteNest Logo"
+              className="w-8 h-8 object-contain mt-0.6"
+              style={{
+                filter:
+                  'invert(45%) sepia(95%) saturate(700%) hue-rotate(183deg) brightness(95%) contrast(85%)',
+              }}
+            />
+            <div>
+              <h1 className="text-xl font-bold text-blue-600 leading-tight">NoteNest</h1>
+              <p className="text-xs text-gray-500 mt-1">Resource sharing platform</p>
+            </div>
+          </div>
         </div>
 
         {/* Navigation */}
-        <nav className="px-6 mt-6 space-y-4">
-          <Link to="/dashboard" className="flex items-center gap-3 text-gray-700 hover:text-blue-500">
-            <FaTachometerAlt className="text-lg" />
-            Dashboard
-          </Link>
-          <Link to="/my-resources" className="flex items-center gap-3 text-gray-700 hover:text-blue-500">
-            <FaBook className="text-lg" />
-            My Resources
-          </Link>
-          <Link to="/saved" className="flex items-center gap-3 text-gray-700 hover:text-blue-500">
-            <FaBookmark className="text-lg" />
-            Saved
-          </Link>
-          <Link to="/recent" className="flex items-center gap-3 text-gray-700 hover:text-blue-500">
-            <FaClock className="text-lg" />
-            Recent
-          </Link>
-          <Link to="/settings" className="flex items-center gap-3 text-gray-700 hover:text-blue-500">
-            <FaCog className="text-lg" />
-            Settings
-          </Link>
-          <Link to="/logout" className="flex items-center gap-3 text-gray-700 hover:text-blue-500">
-            <FaSignOutAlt className="text-lg" />
-            Logout
-          </Link>
+        <nav className="px-2 mt-16 space-y-1">
+          {navItems.map((item) => {
+            const isActive = currentPath === item.to;
+            return (
+              <Link
+                key={item.to}
+                to={item.to}
+                className={`flex items-center gap-3 px-4 py-2 transition-colors ${
+                  isActive
+                    ? 'bg-blue-50 text-blue-600 font-medium border-l-4 border-[#2094F3]'
+                    : 'text-gray-700 hover:text-blue-500 hover:bg-gray-100'
+                }`}
+              >
+                <div className="text-lg">{item.icon}</div>
+                {item.label}
+              </Link>
+            );
+          })}
         </nav>
 
-        {/* Top Subjects (placeholder for future) */}
-        <div className="px-6 mt-10 text-sm text-gray-400 uppercase">
-          Top Subjects
-        </div>
+        {/* Top Subjects Placeholder */}
+        <div className="px-6 mt-10 text-sm text-gray-400 uppercase">Top Subjects</div>
       </div>
 
       {/* User Info */}
-      <div className="px-6 py-4 border-t flex items-center gap-3 bg-gray-50">
+      <div className="px-6 py-4 flex items-center gap-3 bg-gray-50">
         <img
           src="https://via.placeholder.com/40"
           alt="profile"

@@ -17,7 +17,6 @@ import ReviewReports from './pages/admin/ReviewReports';
 import UserManagement from './pages/admin/UserManagement';
 import Analytixs from './pages/admin/Analytics';
 import AdminSettings from './pages/admin/AdminSettings';
-   
 
 function App() {
   return (

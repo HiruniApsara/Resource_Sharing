@@ -1,67 +1,96 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import Sidebar from '../../components/Sidebar';
 import Topbar from '../../components/TopBar';
+import { UserContext } from '../../components/UserContext';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const Profile = () => {
-  const [profileImage, setProfileImage] = useState("https://via.placeholder.com/100");
-  const [nameInput, setNameInput] = useState('');
-  const [bioInput, setBioInput] = useState('');
-  const [savedName, setSavedName] = useState('');
-  const [savedBio, setSavedBio] = useState('');
+  const { user, setUser } = useContext(UserContext);
 
-  const handleFileChange = (e) => {
+  const [profileImage, setProfileImage] = useState(user?.profileImage || "https://via.placeholder.com/100");
+  const [nameInput, setNameInput] = useState(user?.name || '');
+  const [bioInput, setBioInput] = useState(user?.bio || '');
+  const [savedName, setSavedName] = useState(user?.name || '');
+  const [savedBio, setSavedBio] = useState(user?.bio || '');
+  const [isUploading, setIsUploading] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+
+  const handleFileChange = async (e) => {
     const file = e.target.files[0];
     if (file) {
+      setIsUploading(true);
       const imageUrl = URL.createObjectURL(file);
-      setProfileImage(imageUrl);
+      setProfileImage(imageUrl); // Preview immediately
 
       const formData = new FormData();
       formData.append("profilePic", file);
 
-      fetch("http://localhost:5000/api/upload-profile-pic", {
-        method: "POST",
-        body: formData,
-      })
-        .then((res) => res.json())
-        .then((data) => {
-          console.log("Upload successful:", data);
-          // If your server returns image path, update state here
-        })
-        .catch((err) => {
-          console.error("Upload failed:", err);
+      try {
+        const res = await fetch("http://localhost:5000/api/upload-profile-pic", {
+          method: "POST",
+          body: formData,
         });
+
+        const data = await res.json();
+
+        if (data?.imageUrl) {
+          setProfileImage(data.imageUrl);
+          setUser(prev => ({ ...prev, profileImage: data.imageUrl }));
+          toast.success("Profile picture updated!");
+        } else {
+          toast.warn("Upload succeeded but no image URL returned.");
+        }
+      } catch (err) {
+        console.error("Upload failed:", err);
+        toast.error("Failed to upload image.");
+      } finally {
+        setIsUploading(false);
+      }
     }
   };
 
-  const handleSave = () => {
-    setSavedName(nameInput);
-    setSavedBio(bioInput);
+  const handleSave = async () => {
+    if (!nameInput.trim()) {
+      toast.warn("Name cannot be empty.");
+      return;
+    }
+
+    setIsSaving(true);
 
     const userData = {
       name: nameInput,
       bio: bioInput,
-      // Optionally send image too
     };
 
-    console.log("Saving user data:", userData);
+    try {
+      const res = await fetch("http://localhost:5000/api/save-profile", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(userData),
+      });
 
-    // Example fetch call to backend:
-    // fetch('http://localhost:5000/api/save-profile', {
-    //   method: 'POST',
-    //   headers: { 'Content-Type': 'application/json' },
-    //   body: JSON.stringify(userData),
-    // })
-    // .then(res => res.json())
-    // .then(data => console.log("Saved:", data))
-    // .catch(err => console.error("Save failed:", err));
+      const data = await res.json();
+      setSavedName(nameInput);
+      setSavedBio(bioInput);
+      setUser(prev => ({ ...prev, ...userData }));
+
+      toast.success("Profile updated successfully!");
+      console.log("Saved:", data);
+    } catch (err) {
+      console.error("Save failed:", err);
+      toast.error("Failed to save profile.");
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
-    <div className="flex h-screen">
+    <div className="flex min-h-screen">
       <Sidebar />
-      <div className="flex-1 flex flex-col bg-gray-50">
+      <main className="flex-1 bg-[#F7F8FB] p-6">
         <Topbar />
-        <main className="flex-1 p-8">
+        <main className="flex-1 p-4">
           <h2 className="text-2xl font-semibold mb-6">My Profile</h2>
 
           <div className="bg-white p-6 rounded shadow-md max-w-3xl mx-auto">
@@ -71,7 +100,6 @@ const Profile = () => {
                 alt="Profile"
                 className="w-24 h-24 rounded-full object-cover border-2 border-gray-300"
               />
-
               <div className="ml-6">
                 <p className="text-lg font-medium">{savedName || "Your Name"}</p>
 
@@ -86,8 +114,9 @@ const Profile = () => {
                 <button
                   className="text-blue-500 text-sm mt-1 hover:underline"
                   onClick={() => document.getElementById('profilePicInput').click()}
+                  disabled={isUploading}
                 >
-                  Change Picture
+                  {isUploading ? "Uploading..." : "Change Picture"}
                 </button>
               </div>
             </div>
@@ -115,20 +144,24 @@ const Profile = () => {
             </div>
 
             <div className="mb-4 text-sm text-gray-700">
-              <p><strong>Total Likes:</strong> 155</p>
-              <p><strong>Total Downloads:</strong> 50</p>
+              <p><strong>Total Likes:</strong> {user?.likes || 155}</p>
+              <p><strong>Total Downloads:</strong> {user?.downloads || 50}</p>
             </div>
 
             <button
               className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
               onClick={handleSave}
+              disabled={isSaving}
             >
-              Save Changes
+              {isSaving ? "Saving..." : "Save Changes"}
             </button>
           </div>
         </main>
-      </div>
+      
+      </main>
+      <ToastContainer position="bottom-right" autoClose={3000} />
     </div>
+
   );
 };
 

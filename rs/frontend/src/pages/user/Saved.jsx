@@ -28,7 +28,7 @@ const Saved = () => {
         </div>
 
         {/* Content box */}
-        <div className="bg-white border rounded-lg p-10 text-center shadow-sm">
+        <div className="bg-white rounded-lg p-10 text-center shadow-sm">
           <p className="text-gray-700 font-medium mb-2">No resources saved yet</p>
           <p className="text-gray-500 text-sm mb-4">Save resources by clicking the bookmark icon</p>
           <button
