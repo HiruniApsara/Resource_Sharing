@@ -1,6 +1,6 @@
 import Sidebar from "../../components/Sidebar";
 
-import TopBar from '../../components/TopBar';
+import Topbar from '../../components/TopBar';
 import { FaCloudUploadAlt} from 'react-icons/fa';
 import { useState } from 'react';
 import UploadModal from '../../components/UploadModal';

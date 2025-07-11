@@ -1,5 +1,6 @@
 import React from 'react';
-import AdminSideBar from '../../components/AdminSideBar';
+import AdminSidebar from '../../components/AdminSidebar';
+
 const AdminSettings = () => {
   return (
     <div className="flex min-h-screen bg-[#0f172a] text-white">

@@ -1,5 +1,6 @@
 import React from 'react';
 import { FaBook, FaBookmark, FaClock, FaCog, FaTachometerAlt, FaSignOutAlt } from 'react-icons/fa';
+import { Link } from 'react-router-dom';
 
 const Sidebar = () => {
   return (
@@ -13,30 +14,30 @@ const Sidebar = () => {
 
         {/* Navigation */}
         <nav className="px-6 mt-6 space-y-4">
-          <a href="/dashboard" className="flex items-center gap-3 text-gray-700 hover:text-blue-500">
+          <Link to="/dashboard" className="flex items-center gap-3 text-gray-700 hover:text-blue-500">
             <FaTachometerAlt className="text-lg" />
             Dashboard
-          </a>
-          <a href="/my-resources" className="flex items-center gap-3 text-gray-700 hover:text-blue-500">
+          </Link>
+          <Link to="/my-resources" className="flex items-center gap-3 text-gray-700 hover:text-blue-500">
             <FaBook className="text-lg" />
             My Resources
-          </a>
-          <a href="/saved" className="flex items-center gap-3 text-gray-700 hover:text-blue-500">
+          </Link>
+          <Link to="/saved" className="flex items-center gap-3 text-gray-700 hover:text-blue-500">
             <FaBookmark className="text-lg" />
             Saved
-          </a>
-          <a href="/recent" className="flex items-center gap-3 text-gray-700 hover:text-blue-500">
+          </Link>
+          <Link to="/recent" className="flex items-center gap-3 text-gray-700 hover:text-blue-500">
             <FaClock className="text-lg" />
             Recent
-          </a>
-          <a href="/Settings" className="flex items-center gap-3 text-gray-700 hover:text-blue-500">
+          </Link>
+          <Link to="/settings" className="flex items-center gap-3 text-gray-700 hover:text-blue-500">
             <FaCog className="text-lg" />
             Settings
-          </a>
-          <a href="/logout" className="flex items-center gap-3 text-gray-700 hover:text-blue-500">
+          </Link>
+          <Link to="/logout" className="flex items-center gap-3 text-gray-700 hover:text-blue-500">
             <FaSignOutAlt className="text-lg" />
             Logout
-          </a>
+          </Link>
         </nav>
 
         {/* Top Subjects (placeholder for future) */}

@@ -1,4 +1,3 @@
-// Header.jsx
 import React from 'react';
 import logoImage from '../assets/logo.png';
 import { useNavigate } from 'react-router-dom';
@@ -14,30 +13,31 @@ const Header = ({ scrollToAbout, scrollToFeatures, scrollToContact }) => {
   return (
     <header className="bg-[#020d23] py-4 px-8 shadow-lg text-white w-full sticky top-0 z-50">
       <div className="max-w-screen-xl mx-auto flex justify-between items-center">
-        {/* Logo and Title */}
-        <div className="flex items-center gap-3">
+        {/* Logo and Caption Container */}
+        <div 
+          className="flex items-center gap-2 cursor-pointer" 
+          onClick={handleHomeClick}
+        >
           <img
             src={logoImage}
             alt="NoteNest Logo"
             className="w-8 h-8 object-contain"
             style={{
               filter:
-                'invert(28%) sepia(92%) saturate(2990%) hue-rotate(195deg) brightness(96%) contrast(92%)',
+                'invert(45%) sepia(95%) saturate(700%) hue-rotate(183deg) brightness(95%) contrast(85%)',
+              // This filter approx #2094F3 — adjust if needed
             }}
           />
-          <button 
-            onClick={handleHomeClick}
-            className="text-xl font-bold hover:text-[#2094F3] transition"
-          >
+          <span className="text-[#2094F3] text-xl font-bold select-none">
             NoteNest
-          </button>
+          </span>
         </div>
 
         {/* Navigation */}
         <nav>
           <ul className="flex gap-6 items-center text-sm font-medium">
             <li>
-              <button 
+              <button
                 onClick={handleHomeClick}
                 className="hover:text-[#2094F3] transition"
               >
@@ -45,7 +45,7 @@ const Header = ({ scrollToAbout, scrollToFeatures, scrollToContact }) => {
               </button>
             </li>
             <li>
-              <button 
+              <button
                 onClick={scrollToAbout}
                 className="hover:text-[#2094F3] transition"
               >
@@ -53,7 +53,7 @@ const Header = ({ scrollToAbout, scrollToFeatures, scrollToContact }) => {
               </button>
             </li>
             <li>
-              <button 
+              <button
                 onClick={scrollToFeatures}
                 className="hover:text-[#2094F3] transition"
               >
@@ -61,7 +61,7 @@ const Header = ({ scrollToAbout, scrollToFeatures, scrollToContact }) => {
               </button>
             </li>
             <li>
-              <button 
+              <button
                 onClick={scrollToContact}
                 className="hover:text-[#2094F3] transition"
               >
