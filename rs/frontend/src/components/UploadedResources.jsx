@@ -33,6 +33,24 @@ const UploadedResources = ({ username }) => {
     }));
   };
 
+
+
+   // ✅ Save Resource Function
+  const saveResource = async (resourceId) => {
+  const username = localStorage.getItem('username'); // Get username instead of userId
+  try {
+    await fetch('http://localhost:3001/api/resources/save', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, resourceId }),
+    });
+    alert('Saved to your resources!');
+  } catch (err) {
+    alert('Failed to save.');
+  }
+};
+
+
   return (
     <div className="mt-12 px-4 sm:px-8">
       {error && <p className="text-red-600 text-center mb-4">{error}</p>}
@@ -73,14 +91,16 @@ const UploadedResources = ({ username }) => {
                 onClick={() => toggleLike(res._id)}
               />
               <div className="flex items-center gap-4 text-gray-500 text-lg">
-                <a
-                  href={`http://localhost:3001/${res.fileUrl.replace(/\\/g, '/')}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="hover:text-[#2094F3]"
-                >
-                  <FaDownload />
-                </a>
+               <a
+  href={`http://localhost:3001/${res.fileUrl.replace(/\\/g, '/')}`}
+  target="_blank"
+  rel="noopener noreferrer"
+  className="hover:text-[#2094F3]"
+  onClick={() => saveResource(res._id)}  // <-- Save when clicked
+>
+  <FaDownload />
+</a>
+
                 <FaRegCommentDots className="cursor-pointer hover:text-[#2094F3]" />
               </div>
             </div>

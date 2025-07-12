@@ -1,4 +1,5 @@
 const Resource = require('../models/Resource');
+const User = require('../models/User');
 
 // POST /api/resources/upload
 const uploadResource = async (req, res) => {
@@ -42,7 +43,49 @@ const getResources = async (req, res) => {
   }
 };
 
+
+
+// POST /api/resources/save
+const saveResource = async (req, res) => {
+  const { username, resourceId } = req.body;
+
+  try {
+    const user = await User.findOne({ username });
+    const resource = await Resource.findById(resourceId);
+
+    if (!user || !resource) {
+      return res.status(404).json({ message: 'User or Resource not found' });
+    }
+
+    if (!user.savedResources.includes(resourceId)) {
+      user.savedResources.push(resourceId);
+      await user.save();
+    }
+
+    res.status(200).json({ message: 'Resource saved successfully' });
+  } catch (error) {
+    console.error('Error saving resource:', error);
+    res.status(500).json({ message: 'Failed to save resource' });
+  }
+};
+// GET /api/users/:userId/saved
+const getSavedResources = async (req, res) => {
+  try {
+    const user = await User.findOne({ username: req.params.username }).populate('savedResources');
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    res.json(user.savedResources); // ✅ should return an array
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to fetch saved resources' });
+  }
+};
+
+
 module.exports = {
   uploadResource,
-  getResources
+  getResources,
+  saveResource,
+  getSavedResources
 };
+

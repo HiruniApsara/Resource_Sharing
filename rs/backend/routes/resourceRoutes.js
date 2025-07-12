@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const multer = require('multer');
-const { uploadResource, getResources } = require('../controllers/resourceController');
+const { uploadResource, getResources, saveResource, getSavedResources } = require('../controllers/resourceController');
 
 // Multer configuration
 const storage = multer.diskStorage({
@@ -16,5 +16,14 @@ router.post('/upload', upload.array('files'), uploadResource);
 
 // GET - all uploaded resources
 router.get('/all', getResources);
+
+
+// POST - save a resource
+router.post('/save', saveResource);
+
+// GET - saved resources for user
+// Correct — you're fetching by username
+router.get('/saved/:username', getSavedResources);
+
 
 module.exports = router;

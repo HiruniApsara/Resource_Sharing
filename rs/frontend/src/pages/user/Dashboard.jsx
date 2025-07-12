@@ -124,8 +124,7 @@ const Dashboard = () => {
         {/* Show all uploaded resources */}
         <UploadedResources />
 
-        {/* Recently Added Title */}
-        <h3 className="text-lg font-semibold mt-10">Recently Added</h3>
+      
 
         {/* Preview modal */}
         {selectedResource && <PreviewPage resource={selectedResource} onClose={closePreview} />}
