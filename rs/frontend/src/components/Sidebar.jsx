@@ -7,14 +7,27 @@ import {
   FaTachometerAlt,
   FaSignOutAlt,
 } from 'react-icons/fa';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import logoImage from '../assets/logo.png';
 import { useContext } from 'react';
 import { UserContext } from '../components/UserContext';
 
 const Sidebar = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const currentPath = location.pathname;
+
+  const { setUser } = useContext(UserContext);
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    setUser && setUser(null);
+    navigate('/login');
+  };
+
+  const handleProfileClick = () => {
+    navigate('/profile');
+  };
 
   const navItems = [
     { to: '/dashboard', icon: <FaTachometerAlt />, label: 'Dashboard' },
@@ -22,7 +35,6 @@ const Sidebar = () => {
     { to: '/saved', icon: <FaBookmark />, label: 'Saved' },
     { to: '/recent', icon: <FaClock />, label: 'Recent' },
     { to: '/settings', icon: <FaCog />, label: 'Settings' },
-    { to: '/logout', icon: <FaSignOutAlt />, label: 'Logout' },
   ];
 
   return (
@@ -65,14 +77,28 @@ const Sidebar = () => {
               </Link>
             );
           })}
+
+          {/* Logout Button */}
+          <div
+            onClick={handleLogout}
+            className="flex items-center gap-3 px-4 py-2 text-gray-700 hover:text-blue-500 hover:bg-gray-100 cursor-pointer"
+          >
+            <div className="text-lg">
+              <FaSignOutAlt />
+            </div>
+            Logout
+          </div>
         </nav>
 
         {/* Top Subjects Placeholder */}
         <div className="px-6 mt-10 text-sm text-gray-400 uppercase">Top Subjects</div>
       </div>
 
-      {/* User Info */}
-      <div className="px-6 py-4 flex items-center gap-3 bg-gray-50">
+      {/* User Info - Clickable */}
+      <div
+        className="px-6 py-4 flex items-center gap-3 bg-gray-50 cursor-pointer hover:bg-gray-100 transition"
+        onClick={handleProfileClick}
+      >
         <img
           src="https://via.placeholder.com/40"
           alt="profile"
@@ -80,7 +106,7 @@ const Sidebar = () => {
         />
         <div>
           <h4 className="text-sm font-medium text-gray-700">Hiruni Apsara</h4>
-          <p className="text-xs text-gray-500">BICT </p>
+          <p className="text-xs text-gray-500">BICT</p>
           <p>3rd Year</p>
         </div>
       </div>
