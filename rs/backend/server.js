@@ -3,7 +3,10 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const dotenv = require('dotenv');
+const path = require('path');
+
 const userRoutes = require('./routes/userRoutes');
+const resourceRoutes = require('./routes/resourceRoutes');
 
 dotenv.config();
 const app = express();
@@ -16,6 +19,10 @@ mongoose
   .catch((err) => console.error(err));
 
 app.use('/api/users', userRoutes);
+app.use('/api/resources', resourceRoutes);
+
+
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

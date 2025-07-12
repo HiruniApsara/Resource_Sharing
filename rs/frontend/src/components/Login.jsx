@@ -20,7 +20,9 @@ const Login = () => {
 
     try {
       const res = await axios.post('http://localhost:3001/api/users/login', formData);
-      localStorage.setItem('token', res.data.token);
+      // Store token and username in local storage
+  localStorage.setItem('token', res.data.token);
+  localStorage.setItem('username', res.data.username); 
 
       if (res.data.role === 'admin') {
         navigate('/admin-dashboard');

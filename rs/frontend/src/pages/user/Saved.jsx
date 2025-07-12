@@ -33,7 +33,7 @@ const Saved = () => {
           <p className="text-gray-500 text-sm mb-4">Save resources by clicking the bookmark icon</p>
           <button
             className="bg-[#2094F3] text-white text-sm px-4 py-2 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-0"
-            style={{ outline: 'none', boxShadow: 'none' }}
+            style={{ outline: 'none', boxShadow: 'none' }} 
           >
             Explore Resources
           </button>

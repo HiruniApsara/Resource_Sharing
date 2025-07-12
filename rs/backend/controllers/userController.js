@@ -48,6 +48,7 @@ exports.loginUser = async (req, res) => {
     res.json({
       message: 'User login successful',
       token,
+      username: user.username,
       role: 'user',
     });
 
@@ -55,3 +56,5 @@ exports.loginUser = async (req, res) => {
     res.status(500).json({ message: 'Server error', error: err.message });
   }
 };
+
+
