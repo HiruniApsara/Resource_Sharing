@@ -1,65 +1,80 @@
+import React, { useEffect, useState } from 'react';
 import Sidebar from "../../components/Sidebar";
-
 import Topbar from '../../components/TopBar';
-import { FaCloudUploadAlt} from 'react-icons/fa';
-import { useState } from 'react';
-import UploadModal from '../../components/UploadModal';
+import { FaCloudUploadAlt } from 'react-icons/fa';
 
 const Recent = () => {
-  const [resources, setResources] = useState([
-    {
-      id: 1,
-      title: 'HTML Notes',
-      year: 'BICT - 3rd Year',
-      viewedDate: 'May 31, 2025, 4:24 pm',
-    },
-    {
-      id: 2,
-      title: 'Python Basic Codes for Beginners',
-      year: 'BICT - 4th Year',
-      viewedDate: 'May 30, 2025, 6:24 pm',
-    },
-  ]);
+  const [resources, setResources] = useState([]);
+  const [error, setError] = useState(null);
 
-  const handleRemove = (id) => {
-    setResources(resources.filter((res) => res.id !== id));
+  // Fetch last 2 uploaded resources
+  const fetchRecentResources = async () => {
+    try {
+      const res = await fetch('http://localhost:3001/api/resources/recent');
+      const data = await res.json();
+
+      const formatted = data.map(item => ({
+        id: item._id,
+        title: item.title,
+        year: item.year,
+        viewedDate: new Date(item.uploadedAt).toLocaleString(),
+        fileUrl: `http://localhost:3001/${item.fileUrl.replace(/\\/g, '/')}`, // normalize file path
+      }));
+
+      setResources(formatted);
+    } catch (err) {
+      setError('Failed to fetch recent resources');
+    }
   };
 
+  useEffect(() => {
+    fetchRecentResources();
+  }, []);
+
   return (
-    <div className="flex min-h-screen">  {/* Changed from h-screen to min-h-screen */}
+    <div className="flex min-h-screen">
       <Sidebar />
-      <main className="flex-1 bg-[#F7F8FB] p-6">  {/* Added consistent padding and background */}
+      <main className="flex-1 bg-[#F7F8FB] p-6">
         <Topbar />
-        <div className="flex justify-between items-center mb-6">  {/* Increased mb-4 to mb-6 */}
+        <div className="flex justify-between items-center mb-6">
           <h2 className="text-xl font-semibold">Recent</h2>
           <button className="bg-[#2094F3] text-white px-4 py-2 rounded-lg hover:bg-blue-600 text-sm flex items-center gap-2">
             <FaCloudUploadAlt /> Upload Resource
           </button>
         </div>
 
-        {resources.map((res) => (
-          <div
-            key={res.id}
-            className="bg-white rounded-lg shadow-sm p-4 flex justify-between items-start mb-4"  
-          >
-            <div>
-              <h3 className="font-semibold text-black">{res.title}</h3>
-              <p className="text-sm text-gray-600">{res.year}</p>
-              <p className="text-xs text-gray-400">Viewed on {res.viewedDate}</p>
-            </div>
-            <div className="flex items-center space-x-2">
-              <button className="bg-[#2094F3] text-white text-sm px-3 py-1 rounded-lg hover:bg-blue-600">
-                Revisit
-              </button>
-              <button
-                onClick={() => handleRemove(res.id)}
-                className="text-gray-400 hover:text-red-500 text-lg font-bold"
-              >
-                ×
-              </button>
-            </div>
+        {error && (
+          <p className="text-red-600 mb-4">{error}</p>
+        )}
+
+        {resources.length === 0 ? (
+          <div className="bg-white p-6 rounded-lg text-gray-600 text-center shadow">
+            No recent uploads found.
           </div>
-        ))}
+        ) : (
+          resources.map((res) => (
+            <div
+              key={res.id}
+              className="bg-white rounded-lg shadow-sm p-4 flex justify-between items-start mb-4"
+            >
+              <div>
+                <h3 className="font-semibold text-black">{res.title}</h3>
+                <p className="text-sm text-gray-600">{res.year}</p>
+                <p className="text-xs text-gray-400">Viewed on {res.viewedDate}</p>
+              </div>
+              <div className="flex items-center">
+                <a
+                  href={res.fileUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="bg-[#2094F3] text-white text-sm px-3 py-1 rounded-lg hover:bg-blue-600"
+                >
+                  Revisit
+                </a>
+              </div>
+            </div>
+          ))
+        )}
       </main>
     </div>
   );

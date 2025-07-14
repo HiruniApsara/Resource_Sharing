@@ -81,11 +81,24 @@ const getSavedResources = async (req, res) => {
   }
 };
 
+// ✅ GET /api/resources/recent - Get last 2 uploaded resources
+const getRecentResources = async (req, res) => {
+  try {
+    const recent = await Resource.find().sort({ uploadedAt: -1 }).limit(2);
+    res.json(recent);
+  } catch (error) {
+    console.error('Get recent resources error:', error);
+    res.status(500).json({ message: 'Failed to fetch recent resources' });
+  }
+};
+
+
 
 module.exports = {
   uploadResource,
   getResources,
   saveResource,
-  getSavedResources
+  getSavedResources,
+  getRecentResources
 };
 
