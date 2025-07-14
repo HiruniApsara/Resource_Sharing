@@ -56,9 +56,7 @@ const Settings = () => {
 
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-xl font-semibold">Settings</h2>
-          <button className="bg-[#2094F3] text-white px-4 py-2 rounded-lg hover:bg-blue-600 text-sm flex items-center gap-2">
-            <FaCloudUploadAlt />Upload Resource
-          </button>
+         
         </div>
 
         <div className="bg-white rounded-lg shadow-sm p-6 w-full max-w-xl">

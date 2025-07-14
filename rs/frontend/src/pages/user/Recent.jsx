@@ -2,12 +2,13 @@ import React, { useEffect, useState } from 'react';
 import Sidebar from "../../components/Sidebar";
 import Topbar from '../../components/TopBar';
 import { FaCloudUploadAlt } from 'react-icons/fa';
+import UploadModal from '../../components/UploadModal'; // ✅ Add this
 
 const Recent = () => {
   const [resources, setResources] = useState([]);
   const [error, setError] = useState(null);
+  const [isUploadModalOpen, setIsUploadModalOpen] = useState(false); // ✅ Modal state
 
-  // Fetch last 2 uploaded resources
   const fetchRecentResources = async () => {
     try {
       const res = await fetch('http://localhost:3001/api/resources/recent');
@@ -18,7 +19,7 @@ const Recent = () => {
         title: item.title,
         year: item.year,
         viewedDate: new Date(item.uploadedAt).toLocaleString(),
-        fileUrl: `http://localhost:3001/${item.fileUrl.replace(/\\/g, '/')}`, // normalize file path
+        fileUrl: `http://localhost:3001/${item.fileUrl.replace(/\\/g, '/')}`,
       }));
 
       setResources(formatted);
@@ -36,9 +37,13 @@ const Recent = () => {
       <Sidebar />
       <main className="flex-1 bg-[#F7F8FB] p-6">
         <Topbar />
+        
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-xl font-semibold">Recent</h2>
-          <button className="bg-[#2094F3] text-white px-4 py-2 rounded-lg hover:bg-blue-600 text-sm flex items-center gap-2">
+          <button
+            className="bg-[#2094F3] text-white px-4 py-2 rounded-lg hover:bg-blue-600 text-sm flex items-center gap-2"
+            onClick={() => setIsUploadModalOpen(true)} // ✅ Open modal
+          >
             <FaCloudUploadAlt /> Upload Resource
           </button>
         </div>
@@ -75,6 +80,17 @@ const Recent = () => {
             </div>
           ))
         )}
+
+        {/* ✅ Upload Modal */}
+        <UploadModal
+          isOpen={isUploadModalOpen}
+          onClose={() => setIsUploadModalOpen(false)}
+          onUpload={(files) => {
+            console.log("Files uploaded:", files);
+            fetchRecentResources(); // Refresh recent list
+            setIsUploadModalOpen(false);
+          }}
+        />
       </main>
     </div>
   );
