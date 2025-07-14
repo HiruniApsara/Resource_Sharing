@@ -58,3 +58,22 @@ exports.loginUser = async (req, res) => {
 };
 
 
+
+// userController.js
+exports.getUserByUsername = async (req, res) => {
+  try {
+    const { username } = req.params;
+    const user = await User.findOne({ username });
+
+    if (!user) return res.status(404).json({ message: 'User not found' });
+
+    res.json({
+      username: user.username,
+      displayName: user.displayName,
+      course: user.course,
+      year: user.year,
+    });
+  } catch (err) {
+    res.status(500).json({ message: 'Server error', error: err.message });
+  }
+};
