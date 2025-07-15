@@ -2,85 +2,53 @@ import React, { useState, useEffect, useRef } from 'react';
 import AdminSidebar from '../../components/AdminSidebar';
 import { FaEye, FaCheck, FaTrash } from 'react-icons/fa';
 
-const subjectsByYear = {
-  "1st Year": [
-    "Essential of ICT",
-    "Fundamentals of Computer Programming",
-    "Fundamentals of Web Technology",
-    "English",
-    "Mathematics",
-  ],
-  "2nd Year": [
-    "Data Structures and Algorithms",
-    "Statistics for Technology",
-    "Advanced Computer Programming",
-    "Multimedia Design and Technologies",
-    "Human Computer Interaction",
-    "Fundamentals of Web Technology",
-    "Computer Networks",
-    "Database Management Systems",
-    "Computer Graphics",
-    "System Analysis and Design",
-    "Accounting for Technology",
-  ],
-  "3rd Year": [
-    "Computer Architecture and Organization",
-    "Advanced Database Management Systems",
-    "Advanced Web Technologies",
-    "Social and Professional Issues in IT",
-    "Software Engineering",
-    "Information Security",
-  ],
-};
-
-// Flatten all subjects into one array for searching
-const allSubjects = Object.values(subjectsByYear).flat();
-
 const ManageFiles = () => {
-  const [files] = useState([
-    {
-      name: 'Calculus_Notes.pdf',
-      uploadedBy: 'John Doe',
-      courseYear: 'Math/2023',
-      uploadDate: '2025-05-30',
-      likes: 50,
-      downloads: 120,
-      status: 'Approved',
-    },
-    {
-      name: 'Physics_2023.pdf',
-      uploadedBy: 'Jane Smith',
-      courseYear: 'Physics/2024',
-      uploadDate: '2025-05-29',
-      likes: 30,
-      downloads: 80,
-      status: 'Pending',
-    },
-  ]);
-
+  const [resources, setResources] = useState([]);
   const [subjectInput, setSubjectInput] = useState('');
+  const [statusFilter, setStatusFilter] = useState('All');
   const [filteredSubjects, setFilteredSubjects] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const suggestionsRef = useRef();
 
-  // Filter subjects as user types
+  // 📌 Fetch resources from backend
+  const fetchResources = async () => {
+    try {
+      const res = await fetch('http://localhost:3001/api/resources/all');
+      const data = await res.json();
+      setResources(data);
+    } catch (err) {
+      console.error('Error fetching resources:', err);
+    }
+  };
+
+  useEffect(() => {
+    fetchResources();
+  }, []);
+
+  // 📌 Filtered Subjects
+  const allSubjects = [
+    ...new Set(resources.map((res) => res.subject).filter(Boolean)),
+  ];
+
   useEffect(() => {
     if (subjectInput.trim() === '') {
       setFilteredSubjects([]);
       setShowSuggestions(false);
     } else {
-      const filtered = allSubjects.filter(subject =>
+      const filtered = allSubjects.filter((subject) =>
         subject.toLowerCase().includes(subjectInput.toLowerCase())
       );
       setFilteredSubjects(filtered);
       setShowSuggestions(true);
     }
-  }, [subjectInput]);
+  }, [subjectInput, allSubjects]);
 
-  // Close suggestions when clicking outside
   useEffect(() => {
     function handleClickOutside(event) {
-      if (suggestionsRef.current && !suggestionsRef.current.contains(event.target)) {
+      if (
+        suggestionsRef.current &&
+        !suggestionsRef.current.contains(event.target)
+      ) {
         setShowSuggestions(false);
       }
     }
@@ -88,25 +56,53 @@ const ManageFiles = () => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // When user clicks a suggestion
   const onSuggestionClick = (subject) => {
     setSubjectInput(subject);
     setShowSuggestions(false);
   };
 
+  const handleApprove = async (id) => {
+    try {
+      await fetch(`http://localhost:3001/api/resources/approve/${id}`, {
+        method: 'PUT',
+      });
+      fetchResources(); // Refresh list
+    } catch (err) {
+      console.error('Approval failed:', err);
+    }
+  };
+
+  const handleDelete = async (id) => {
+    try {
+      await fetch(`http://localhost:3001/api/resources/delete/${id}`, {
+        method: 'DELETE',
+      });
+      fetchResources(); // Refresh list
+    } catch (err) {
+      console.error('Delete failed:', err);
+    }
+  };
+
+  // ✅ Filter based on subject and status
+  const filteredResources = resources.filter((res) => {
+    const matchesSubject =
+      !subjectInput || res.subject?.toLowerCase().includes(subjectInput.toLowerCase());
+    const matchesStatus =
+      statusFilter === 'All' || res.status === statusFilter;
+    return matchesSubject && matchesStatus;
+  });
+
   return (
     <div className="flex min-h-screen bg-[#0f172a] text-white">
-      {/* Sidebar */}
       <AdminSidebar />
 
-      {/* Main content */}
       <main className="flex-1 p-8">
         <h1 className="text-2xl font-semibold mb-6">Manage Files</h1>
 
         {/* Filters */}
         <div className="bg-[#1e293b] p-4 rounded-lg shadow mb-6">
           <div className="flex flex-wrap gap-4 mb-4 relative">
-            {/* Subject Input with autocomplete */}
+            {/* Subject Input */}
             <div className="w-64 relative" ref={suggestionsRef}>
               <input
                 type="text"
@@ -133,67 +129,91 @@ const ManageFiles = () => {
               )}
             </div>
 
-            {/* Status select */}
-            <select className="bg-[#0f172a] text-white border border-gray-600 px-3 py-2 rounded text-sm">
-              <option>All Statuses</option>
-              <option>Approved</option>
-              <option>Pending</option>
-              <option>Flagged</option>
+            {/* Status filter */}
+            <select
+              className="bg-[#0f172a] text-white border border-gray-600 px-3 py-2 rounded text-sm"
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+            >
+              <option value="All">All Statuses</option>
+              <option value="Approved">Approved</option>
+              <option value="Pending">Pending</option>
+              <option value="Flagged">Flagged</option>
             </select>
           </div>
 
-          {/* Table */}
+          {/* File Table */}
           <table className="w-full text-sm text-white">
             <thead>
               <tr className="bg-gray-800 text-left">
-                <th className="p-2">File Name</th>
+                <th className="p-2">Title</th>
                 <th className="p-2">Uploaded by</th>
-                <th className="p-2">Course/Year</th>
-                <th className="p-2">Upload Date</th>
+                <th className="p-2">Subject</th>
+                <th className="p-2">Date</th>
                 <th className="p-2">Likes / Downloads</th>
                 <th className="p-2">Status</th>
                 <th className="p-2">Actions</th>
               </tr>
             </thead>
             <tbody>
-              {files.map((file, index) => (
-                <tr key={index} className="border-t border-gray-700 hover:bg-[#334155]">
-                  <td className="p-2">{file.name}</td>
-                  <td className="p-2">{file.uploadedBy}</td>
-                  <td className="p-2">{file.courseYear}</td>
-                  <td className="p-2">{file.uploadDate}</td>
+              {filteredResources.map((res) => (
+                <tr
+                  key={res._id}
+                  className="border-t border-gray-700 hover:bg-[#334155]"
+                >
+                  <td className="p-2">{res.title}</td>
+                  <td className="p-2">{res.username}</td>
+                  <td className="p-2">{res.subject}</td>
                   <td className="p-2">
-                    {file.likes} / {file.downloads}
+                    {new Date(res.uploadedAt).toLocaleDateString()}
+                  </td>
+                  <td className="p-2">
+                    {res.likes || 0} / {res.downloads || 0}
                   </td>
                   <td className="p-2">
                     <span
                       className={`px-2 py-1 rounded text-xs font-medium ${
-                        file.status === 'Approved'
-                          ? 'bg-green-700 text-white'
-                          : 'bg-yellow-600 text-white'
+                        res.status === 'Approved'
+                          ? 'bg-green-700'
+                          : 'bg-yellow-600'
                       }`}
                     >
-                      {file.status}
+                      {res.status}
                     </span>
                   </td>
                   <td className="p-2">
                     <div className="flex gap-2 text-sm">
-                      <button className="flex items-center gap-1 text-blue-400 hover:text-blue-300">
-                        <FaEye />
-                        View
+                      <a
+                        href={`http://localhost:3001/${res.fileUrl.replace(/\\/g, '/')}`}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="flex items-center gap-1 text-blue-400 hover:text-blue-300"
+                      >
+                        <FaEye /> View
+                      </a>
+                      <button
+                        className="flex items-center gap-1 text-green-400 hover:text-green-300"
+                        onClick={() => handleApprove(res._id)}
+                      >
+                        <FaCheck /> Approve
                       </button>
-                      <button className="flex items-center gap-1 text-green-400 hover:text-green-300">
-                        <FaCheck />
-                        Approve
-                      </button>
-                      <button className="flex items-center gap-1 text-red-400 hover:text-red-300">
-                        <FaTrash />
-                        Delete
+                      <button
+                        className="flex items-center gap-1 text-red-400 hover:text-red-300"
+                        onClick={() => handleDelete(res._id)}
+                      >
+                        <FaTrash /> Delete
                       </button>
                     </div>
                   </td>
                 </tr>
               ))}
+              {filteredResources.length === 0 && (
+                <tr>
+                  <td colSpan="7" className="text-center p-4 text-gray-400">
+                    No resources found.
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>

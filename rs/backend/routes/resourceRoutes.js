@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const multer = require('multer');
-const { uploadResource, getResources, saveResource, getSavedResources, getRecentResources } = require('../controllers/resourceController');
+const { uploadResource, getResources, saveResource, getSavedResources, getRecentResources, approveResource, deleteResource } = require('../controllers/resourceController');
 
 // Multer configuration
 const storage = multer.diskStorage({
@@ -27,6 +27,10 @@ router.get('/saved/:username', getSavedResources);
 
 
 router.get('/recent', getRecentResources);
+
+
+router.put('/approve/:id', approveResource);
+router.delete('/delete/:id', deleteResource);
 
 
 module.exports = router;
