@@ -1,87 +1,103 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import Sidebar from '../../components/Sidebar';
 import Topbar from '../../components/TopBar';
 import { UserContext } from '../../components/UserContext';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
+const baseURL = 'http://localhost:3001';
+
+const formatImagePath = (path) => {
+  if (!path) return 'https://via.placeholder.com/100';
+
+  // Use your format: baseURL + uploads/profile_images/ + filename
+  return `${baseURL}/uploads/profile_images/${path}`;
+};
+
 const Profile = () => {
   const { user, setUser } = useContext(UserContext);
 
-  const [profileImage, setProfileImage] = useState(user?.profileImage || "https://via.placeholder.com/100");
+  const [profileImage, setProfileImage] = useState(user?.profileImage || 'https://via.placeholder.com/100');
   const [nameInput, setNameInput] = useState(user?.name || '');
   const [bioInput, setBioInput] = useState(user?.bio || '');
   const [savedName, setSavedName] = useState(user?.name || '');
   const [savedBio, setSavedBio] = useState(user?.bio || '');
   const [isUploading, setIsUploading] = useState(false);
-  const [isSaving, setIsSaving] = useState(false);
+  // No saving state needed if you don't save profile info to backend now
 
-  const handleFileChange = async (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setIsUploading(true);
-      const imageUrl = URL.createObjectURL(file);
-      setProfileImage(imageUrl); // Preview immediately
+  const username = localStorage.getItem('username');
 
-      const formData = new FormData();
-      formData.append("profilePic", file);
+  // Load user data on mount (refresh local profile data)
+  useEffect(() => {
+    if (!username) return;
 
+    const fetchProfile = async () => {
       try {
-        const res = await fetch("http://localhost:5000/api/upload-profile-pic", {
-          method: "POST",
-          body: formData,
-        });
-
+        const res = await fetch(`${baseURL}/api/users/${username}`);
         const data = await res.json();
 
-        if (data?.imageUrl) {
-          setProfileImage(data.imageUrl);
-          setUser(prev => ({ ...prev, profileImage: data.imageUrl }));
-          toast.success("Profile picture updated!");
-        } else {
-          toast.warn("Upload succeeded but no image URL returned.");
-        }
-      } catch (err) {
-        console.error("Upload failed:", err);
-        toast.error("Failed to upload image.");
-      } finally {
-        setIsUploading(false);
+        const imageUrl = data.profileImage
+          ? formatImagePath(data.profileImage)
+          : 'https://via.placeholder.com/100';
+
+        setProfileImage(imageUrl);
+        setNameInput(data.displayName || '');
+        setBioInput(data.bio || '');
+        setSavedName(data.displayName || '');
+        setSavedBio(data.bio || '');
+
+        setUser(prev => ({
+          ...prev,
+          name: data.displayName,
+          bio: data.bio,
+          profileImage: imageUrl,
+          likes: data.likes || 0,
+          downloads: data.downloads || 0,
+        }));
+      } catch (error) {
+        console.error('Error fetching profile:', error);
+        toast.error('Failed to load profile data.');
       }
-    }
-  };
-
-  const handleSave = async () => {
-    if (!nameInput.trim()) {
-      toast.warn("Name cannot be empty.");
-      return;
-    }
-
-    setIsSaving(true);
-
-    const userData = {
-      name: nameInput,
-      bio: bioInput,
     };
 
+    fetchProfile();
+  }, [username, setUser]);
+
+  // Handle profile picture upload
+  const handleFileChange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    setIsUploading(true);
+
+    // Preview image immediately
+    const previewUrl = URL.createObjectURL(file);
+    setProfileImage(previewUrl);
+
+    const formData = new FormData();
+    formData.append('profilePic', file);
+    formData.append('username', username);
+
     try {
-      const res = await fetch("http://localhost:5000/api/save-profile", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(userData),
+      const res = await fetch(`${baseURL}/api/upload-profile-pic`, {
+        method: 'POST',
+        body: formData,
       });
-
       const data = await res.json();
-      setSavedName(nameInput);
-      setSavedBio(bioInput);
-      setUser(prev => ({ ...prev, ...userData }));
 
-      toast.success("Profile updated successfully!");
-      console.log("Saved:", data);
+      if (data?.imageUrl) {
+        const fullUrl = formatImagePath(data.imageUrl);
+        setProfileImage(fullUrl);
+        setUser(prev => ({ ...prev, profileImage: fullUrl }));
+        toast.success('Profile picture updated!');
+      } else {
+        toast.warn('Upload succeeded but no image URL returned.');
+      }
     } catch (err) {
-      console.error("Save failed:", err);
-      toast.error("Failed to save profile.");
+      console.error('Upload failed:', err);
+      toast.error('Failed to upload image.');
     } finally {
-      setIsSaving(false);
+      setIsUploading(false);
     }
   };
 
@@ -101,7 +117,7 @@ const Profile = () => {
                 className="w-24 h-24 rounded-full object-cover border-2 border-gray-300"
               />
               <div className="ml-6">
-                <p className="text-lg font-medium">{savedName || "Your Name"}</p>
+                <p className="text-lg font-medium">{savedName || 'Your Name'}</p>
 
                 <input
                   type="file"
@@ -116,7 +132,7 @@ const Profile = () => {
                   onClick={() => document.getElementById('profilePicInput').click()}
                   disabled={isUploading}
                 >
-                  {isUploading ? "Uploading..." : "Change Picture"}
+                  {isUploading ? 'Uploading...' : 'Change Picture'}
                 </button>
               </div>
             </div>
@@ -144,24 +160,20 @@ const Profile = () => {
             </div>
 
             <div className="mb-4 text-sm text-gray-700">
-              <p><strong>Total Likes:</strong> {user?.likes || 155}</p>
-              <p><strong>Total Downloads:</strong> {user?.downloads || 50}</p>
+              <p>
+                <strong>Total Likes:</strong> {user?.likes || 0}
+              </p>
+              <p>
+                <strong>Total Downloads:</strong> {user?.downloads || 0}
+              </p>
             </div>
 
-            <button
-              className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-              onClick={handleSave}
-              disabled={isSaving}
-            >
-              {isSaving ? "Saving..." : "Save Changes"}
-            </button>
+            {/* No save button since you said no saving needed */}
           </div>
         </main>
-      
       </main>
       <ToastContainer position="bottom-right" autoClose={3000} />
     </div>
-
   );
 };
 

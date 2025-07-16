@@ -10,7 +10,18 @@ exports.registerUser = async (req, res) => {
     if (userExists) return res.status(400).json({ message: 'Username already exists' });
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    const newUser = new User({ username, displayName, course, year, password: hashedPassword });
+
+    // Save full relative path so frontend can load image
+    const profileImage = req.file ? `uploads/profile_images/${req.file.filename}` : '';
+
+    const newUser = new User({
+      username,
+      displayName,
+      course, 
+      year,
+      password: hashedPassword,
+      profileImage,
+    });
 
     await newUser.save();
 
@@ -72,6 +83,7 @@ exports.getUserByUsername = async (req, res) => {
       displayName: user.displayName,
       course: user.course,
       year: user.year,
+       profileImage: user.profileImage,
     });
   } catch (err) {
     res.status(500).json({ message: 'Server error', error: err.message });

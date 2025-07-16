@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import {
   FaBook,
   FaBookmark,
@@ -6,10 +6,10 @@ import {
   FaCog,
   FaTachometerAlt,
   FaSignOutAlt,
+  FaUserCircle,
 } from 'react-icons/fa';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import logoImage from '../assets/logo.png';
-import { useContext } from 'react';
 import { UserContext } from '../components/UserContext';
 
 const Sidebar = () => {
@@ -17,7 +17,7 @@ const Sidebar = () => {
   const navigate = useNavigate();
   const currentPath = location.pathname;
 
-  const { setUser } = useContext(UserContext);
+  const { user, setUser } = useContext(UserContext);
 
   const handleLogout = () => {
     localStorage.removeItem('token');
@@ -40,6 +40,7 @@ const Sidebar = () => {
   return (
     <aside className="w-64 min-h-screen bg-white shadow-md flex flex-col justify-between">
       <div>
+        {/* Logo */}
         <div className="px-4 py-4">
           <div className="flex items-start gap-3">
             <img
@@ -78,7 +79,7 @@ const Sidebar = () => {
             );
           })}
 
-          {/* Logout Button */}
+          {/* Logout */}
           <div
             onClick={handleLogout}
             className="flex items-center gap-3 px-4 py-2 text-gray-700 hover:text-blue-500 hover:bg-gray-100 cursor-pointer"
@@ -90,24 +91,29 @@ const Sidebar = () => {
           </div>
         </nav>
 
-        {/* Top Subjects Placeholder */}
+        {/* Top Subjects placeholder */}
         <div className="px-6 mt-10 text-sm text-gray-400 uppercase">Top Subjects</div>
       </div>
 
-      {/* User Info - Clickable */}
+      {/* Bottom Profile Section */}
       <div
         className="px-6 py-4 flex items-center gap-3 bg-gray-50 cursor-pointer hover:bg-gray-100 transition"
         onClick={handleProfileClick}
       >
-        <img
-          src="https://via.placeholder.com/40"
-          alt="profile"
-          className="w-10 h-10 rounded-full object-cover"
-        />
+        {user?.profileImage ? (
+          <img
+            src={user.profileImage}
+            alt="profile"
+            className="w-10 h-10 rounded-full object-cover"
+          />
+        ) : (
+          <FaUserCircle className="w-10 h-10 text-gray-400" />
+        )}
+
         <div>
-          <h4 className="text-sm font-medium text-gray-700">Hiruni Apsara</h4>
-          <p className="text-xs text-gray-500">BICT</p>
-          <p>3rd Year</p>
+          <h4 className="text-sm font-medium text-gray-700">{user?.name || 'User Name'}</h4>
+          <p className="text-xs text-gray-500">{user?.degree || 'Degree'}</p>
+          <p className="text-xs text-gray-500">{user?.year || 'Year'}</p>
         </div>
       </div>
     </aside>

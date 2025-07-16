@@ -7,6 +7,7 @@ const Register = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('register');
   const [successMessage, setSuccessMessage] = useState('');
+  const [profileImage, setProfileImage] = useState(null);
   const [formData, setFormData] = useState({
     username: '',
     displayName: '',
@@ -20,6 +21,10 @@ const Register = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  const handleFileChange = (e) => {
+    setProfileImage(e.target.files[0]);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -27,15 +32,18 @@ const Register = () => {
       return alert('Passwords do not match');
     }
 
-    try {
-      const res = await axios.post('http://localhost:3001/api/users/register', {
-        username: formData.username,
-        displayName: formData.displayName,
-        course: formData.course,
-        year: parseInt(formData.year),
-        password: formData.password,
-      });
+    const data = new FormData();
+    data.append('username', formData.username);
+    data.append('displayName', formData.displayName);
+    data.append('course', formData.course);
+    data.append('year', formData.year);
+    data.append('password', formData.password);
+    if (profileImage) {
+      data.append('profileImage', profileImage);
+    }
 
+    try {
+      const res = await axios.post('http://localhost:3001/api/users/register', data);
       setSuccessMessage('✅ Registered successfully! You can now log in.');
       setFormData({
         username: '',
@@ -45,6 +53,7 @@ const Register = () => {
         password: '',
         confirmPassword: ''
       });
+      setProfileImage(null);
     } catch (err) {
       alert(err.response?.data?.message || 'Registration failed');
     }
@@ -101,9 +110,7 @@ const Register = () => {
             </button>
           </div>
 
-          <p>Create a new account to start sharing resources</p>
-
-          <form className="space-y-4 mt-4" onSubmit={handleSubmit}>
+          <form className="space-y-4 mt-4" onSubmit={handleSubmit} encType="multipart/form-data">
             <div>
               <label className="text-sm font-medium">Username</label>
               <input
@@ -112,9 +119,10 @@ const Register = () => {
                 value={formData.username}
                 onChange={handleChange}
                 placeholder="Choose username"
-                className="w-full mt-1 px-4 py-2 border border-gray-600 rounded-md bg-transparent text-white focus:outline-none focus:ring-2 focus:ring-[#2094F3]"
+                className="w-full mt-1 px-4 py-2 border border-gray-600 rounded-md bg-transparent text-white"
               />
             </div>
+
             <div>
               <label className="text-sm font-medium">Display Name</label>
               <input
@@ -123,49 +131,50 @@ const Register = () => {
                 value={formData.displayName}
                 onChange={handleChange}
                 placeholder="Your full name"
-                className="w-full mt-1 px-4 py-2 border border-gray-600 rounded-md bg-transparent text-white focus:outline-none focus:ring-2 focus:ring-[#2094F3]"
+                className="w-full mt-1 px-4 py-2 border border-gray-600 rounded-md bg-transparent text-white"
               />
             </div>
 
-            <div className="relative">
+            <div>
+              <label className="text-sm font-medium">Profile Image</label>
+              <input
+                type="file"
+                name="profileImage"
+                accept="image/*"
+                onChange={handleFileChange}
+                className="w-full mt-1 text-white"
+              />
+            </div>
+
+            <div>
               <label className="text-sm font-medium">Course</label>
               <select
                 name="course"
                 value={formData.course}
                 onChange={handleChange}
-                className="w-full mt-1 px-4 py-2 pr-10 bg-black text-white border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-[#2094F3] appearance-none"
+                className="w-full mt-1 px-4 py-2 border border-gray-600 rounded-md bg-black text-white"
               >
-                <option value="" disabled>Select course</option>
+                <option value="">Select course</option>
                 <option value="bitc">BICT</option>
                 <option value="bsc-it">BSc in IT</option>
                 <option value="biz">Business Studies</option>
               </select>
-              <div className="pointer-events-none absolute top-[38px] right-3 text-white">
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-                </svg>
-              </div>
             </div>
 
-            <div className="relative mt-4">
+            <div>
               <label className="text-sm font-medium">Year</label>
               <select
                 name="year"
                 value={formData.year}
                 onChange={handleChange}
-                className="w-full mt-1 px-4 py-2 pr-10 bg-black text-white border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-[#2094F3] appearance-none"
+                className="w-full mt-1 px-4 py-2 border border-gray-600 rounded-md bg-black text-white"
               >
-                <option value="" disabled>Select year</option>
+                <option value="">Select year</option>
                 <option value="1">1st Year</option>
                 <option value="2">2nd Year</option>
                 <option value="3">3rd Year</option>
                 <option value="4">4th Year</option>
               </select>
-              <div className="pointer-events-none absolute top-[38px] right-3 text-white">
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-                </svg>
-              </div>
             </div>
 
             <div>
@@ -176,9 +185,10 @@ const Register = () => {
                 value={formData.password}
                 onChange={handleChange}
                 placeholder="Create a password"
-                className="w-full mt-1 px-4 py-2 border border-gray-600 rounded-md bg-transparent text-white focus:outline-none focus:ring-2 focus:ring-[#2094F3]"
+                className="w-full mt-1 px-4 py-2 border border-gray-600 rounded-md bg-transparent text-white"
               />
             </div>
+
             <div>
               <label className="text-sm font-medium">Confirm Password</label>
               <input
@@ -187,9 +197,10 @@ const Register = () => {
                 value={formData.confirmPassword}
                 onChange={handleChange}
                 placeholder="Confirm your password"
-                className="w-full mt-1 px-4 py-2 border border-gray-600 rounded-md bg-transparent text-white focus:outline-none focus:ring-2 focus:ring-[#2094F3]"
+                className="w-full mt-1 px-4 py-2 border border-gray-600 rounded-md bg-transparent text-white"
               />
             </div>
+
             <button type="submit" className="w-full bg-[#2094F3] hover:bg-[#1a78c2] text-white py-2 rounded-md transition">
               Register
             </button>
