@@ -9,8 +9,13 @@ const baseURL = 'http://localhost:3001';
 
 const formatImagePath = (path) => {
   if (!path) return 'https://via.placeholder.com/100';
+  
+  // If path already starts with uploads/, just return full URL
+  if (path.startsWith('uploads/')) {
+    return `${baseURL}/${path}`;
+  }
 
-  // Use your format: baseURL + uploads/profile_images/ + filename
+  // Otherwise, assume it's just a filename
   return `${baseURL}/uploads/profile_images/${path}`;
 };
 

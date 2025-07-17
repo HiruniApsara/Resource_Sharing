@@ -1,23 +1,55 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import { FaDownload, FaHeart, FaRegCommentDots } from 'react-icons/fa';
+import { UserContext } from './UserContext'; // Adjust path if needed
+
+const baseURL = 'http://localhost:3001';
 
 const UploadedResources = ({ username }) => {
+  const { user } = useContext(UserContext); // current logged-in user (if any)
+
   const [resources, setResources] = useState([]);
   const [liked, setLiked] = useState({});
   const [error, setError] = useState(null);
 
+  // Format image path same as in UserContext
+  const formatImagePath = (path) => {
+    if (!path) return 'https://via.placeholder.com/40';
+    if (path.startsWith('uploads/')) return `${baseURL}/${path}`;
+    return `${baseURL}/uploads/profile_images/${path}`;
+  };
+
   const fetchResources = async () => {
     try {
-      const res = await fetch('http://localhost:3001/api/resources/all');
+      const res = await fetch(`${baseURL}/api/resources/all`);
       const data = await res.json();
 
-      // If username is provided, filter to show only that user's resources
+      // Filter resources by username if provided as prop
       const filteredResources = username
-        ? data.filter(resource => resource.username === username)
-        : data; // Show all resources if no username is given
+        ? data.filter((resource) => resource.username === username)
+        : data;
 
-      setResources(filteredResources);
+      // Add profileImage to each resource uploader info
+      const enhancedResources = await Promise.all(
+        filteredResources.map(async (res) => {
+          try {
+            const userRes = await fetch(`${baseURL}/api/users/${res.username}`);
+            const userData = await userRes.json();
+
+            return {
+              ...res,
+              profileImage: userData?.profileImage
+                ? formatImagePath(userData.profileImage.replace(/\\/g, '/'))
+                : 'https://via.placeholder.com/40',
+            };
+          } catch (err) {
+            return { ...res, profileImage: 'https://via.placeholder.com/40' };
+          }
+        })
+      );
+
+      setResources(enhancedResources);
     } catch (err) {
+      console.error(err);
       setError('Failed to fetch resources');
     }
   };
@@ -33,23 +65,20 @@ const UploadedResources = ({ username }) => {
     }));
   };
 
-
-
-   // ✅ Save Resource Function
   const saveResource = async (resourceId) => {
-  const username = localStorage.getItem('username'); // Get username instead of userId
-  try {
-    await fetch('http://localhost:3001/api/resources/save', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username, resourceId }),
-    });
-    alert('Saved to your resources!');
-  } catch (err) {
-    alert('Failed to save.');
-  }
-};
-
+    // Use username from context if available, fallback to localStorage
+    const currentUsername = user?.name || localStorage.getItem('username');
+    try {
+      await fetch(`${baseURL}/api/resources/save`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: currentUsername, resourceId }),
+      });
+      alert('Saved to your resources!');
+    } catch (err) {
+      alert('Failed to save.');
+    }
+  };
 
   return (
     <div className="mt-12 px-4 sm:px-8">
@@ -64,19 +93,23 @@ const UploadedResources = ({ username }) => {
             {/* Uploader Info */}
             <div className="flex items-center gap-3 mb-4">
               <img
-                src="https://via.placeholder.com/40"
+                src={res.profileImage}
                 alt="avatar"
                 className="w-10 h-10 rounded-full object-cover border"
               />
               <div>
                 <p className="text-sm font-semibold text-gray-800">{res.username}</p>
-                <p className="text-xs text-gray-500">{new Date(res.uploadedAt).toLocaleString()}</p>
+                <p className="text-xs text-gray-500">
+                  {new Date(res.uploadedAt).toLocaleString()}
+                </p>
               </div>
             </div>
 
             {/* Resource Details */}
             <div className="flex-1">
-              <p className="text-lg font-semibold text-gray-900 mb-1 line-clamp-1">{res.title}</p>
+              <p className="text-lg font-semibold text-gray-900 mb-1 line-clamp-1">
+                {res.title}
+              </p>
               <p className="text-sm text-gray-600 mb-4">
                 {res.subject} | {res.year} | {res.resourceType}
               </p>
@@ -91,16 +124,15 @@ const UploadedResources = ({ username }) => {
                 onClick={() => toggleLike(res._id)}
               />
               <div className="flex items-center gap-4 text-gray-500 text-lg">
-               <a
-  href={`http://localhost:3001/${res.fileUrl.replace(/\\/g, '/')}`}
-  target="_blank"
-  rel="noopener noreferrer"
-  className="hover:text-[#2094F3]"
-  onClick={() => saveResource(res._id)}  // <-- Save when clicked
->
-  <FaDownload />
-</a>
-
+                <a
+                  href={`${baseURL}/${res.fileUrl.replace(/\\/g, '/')}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-[#2094F3]"
+                  onClick={() => saveResource(res._id)}
+                >
+                  <FaDownload />
+                </a>
                 <FaRegCommentDots className="cursor-pointer hover:text-[#2094F3]" />
               </div>
             </div>

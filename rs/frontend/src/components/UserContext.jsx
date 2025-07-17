@@ -9,13 +9,18 @@ const UserProvider = ({ children }) => {
   const [error, setError] = useState(null);
 
   const baseURL = 'http://localhost:3001';
+const formatImagePath = (path) => {
+  if (!path) return 'https://via.placeholder.com/100';
 
-  const formatImagePath = (path) => {
-    if (!path) return 'https://via.placeholder.com/100';
+  // If full path already included from DB
+  if (path.startsWith('uploads/')) {
+    return `${baseURL}/${path}`;
+  }
 
-    // If only filename is stored (recommended)
-    return `${baseURL}/uploads/profile_images/${path}`;
-  };
+  // Else, it's just a filename
+  return `${baseURL}/uploads/profile_images/${path}`;
+};
+
 
   useEffect(() => {
     const fetchUser = async () => {

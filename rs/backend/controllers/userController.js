@@ -12,12 +12,13 @@ exports.registerUser = async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     // Save full relative path so frontend can load image
-    const profileImage = req.file ? `uploads/profile_images/${req.file.filename}` : '';
+   const profileImage = req.file ? req.file.filename : '';
+
 
     const newUser = new User({
       username,
       displayName,
-      course, 
+      course,
       year,
       password: hashedPassword,
       profileImage,
