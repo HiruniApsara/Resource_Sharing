@@ -22,6 +22,9 @@ exports.registerUser = async (req, res) => {
       year,
       password: hashedPassword,
       profileImage,
+       uploadCount: 0,
+  lastActive: new Date(),
+  status: 'Active',
     });
 
     await newUser.save();

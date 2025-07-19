@@ -1,43 +1,32 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
 import AdminSidebar from '../../components/AdminSidebar';
 import { FaUser, FaBan, FaArrowUp } from 'react-icons/fa';
 
 const UserManagement = () => {
-  const [users] = useState([
-    {
-      name: 'John Doe',
-      email: 'john.doe@example.com',
-      role: 'User',
-      uploadCount: 15,
-      lastActive: '2025-05-30',
-      status: 'Active',
-    },
-    {
-      name: 'Jane Smith',
-      email: 'jane.smith@example.com',
-      role: 'Admin',
-      uploadCount: 8,
-      lastActive: '2025-05-29',
-      status: 'Active',
-    },
-  ]);
+  const [users, setUsers] = useState([]);
+
+  useEffect(() => {
+    axios
+      .get('http://localhost:3001/api/users')
+      .then((res) => setUsers(res.data))
+      .catch((err) => console.error('Error fetching users:', err));
+  }, []);
 
   return (
     <div className="flex min-h-screen bg-[#0f172a] text-white">
-      {/* Sidebar */}
       <AdminSidebar />
-
-      {/* Main Content */}
       <main className="flex-1 p-8">
         <h1 className="text-2xl font-semibold mb-6">User Management</h1>
 
-        <div className="bg-[#1e293b] p-4 rounded-lg shadow">
+        <div className="bg-[#1e293b] p-4 rounded-lg shadow overflow-x-auto">
           <table className="w-full text-sm text-white">
             <thead>
               <tr className="bg-[#334155] text-left">
-                <th className="p-2">Name</th>
-                <th className="p-2">Email</th>
-                <th className="p-2">Role</th>
+                <th className="p-2">Display Name</th>
+                <th className="p-2">Username</th>
+                <th className="p-2">Course</th>
+                <th className="p-2">Year</th>
                 <th className="p-2">Upload Count</th>
                 <th className="p-2">Last Active</th>
                 <th className="p-2">Status</th>
@@ -46,18 +35,16 @@ const UserManagement = () => {
             </thead>
             <tbody>
               {users.map((user, index) => (
-                <tr
-                  key={index}
-                  className="border-t border-gray-700 hover:bg-[#334155]"
-                >
-                  <td className="p-2">{user.name}</td>
-                  <td className="p-2">{user.email}</td>
-                  <td className="p-2">{user.role}</td>
+                <tr key={index} className="border-t border-gray-700 hover:bg-[#334155]">
+                  <td className="p-2">{user.displayName}</td>
+                  <td className="p-2">{user.username}</td>
+                  <td className="p-2">{user.course}</td>
+                  <td className="p-2">{user.year}</td>
                   <td className="p-2">{user.uploadCount}</td>
-                  <td className="p-2">{user.lastActive}</td>
+                  <td className="p-2">{new Date(user.lastActive).toLocaleDateString()}</td>
                   <td className="p-2">{user.status}</td>
                   <td className="p-2">
-                    <div className="flex gap-2 text-sm flex-wrap">
+                    <div className="flex gap-2 flex-wrap text-sm">
                       <button className="flex items-center gap-1 text-blue-400 hover:text-blue-300">
                         <FaUser />
                         View
