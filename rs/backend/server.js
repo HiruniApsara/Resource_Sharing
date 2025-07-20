@@ -7,6 +7,7 @@ const path = require('path');
 
 const userRoutes = require('./routes/userRoutes');
 const resourceRoutes = require('./routes/resourceRoutes');
+const reportRoutes = require('./routes/reports');
 
 dotenv.config();
 const app = express();
@@ -20,6 +21,8 @@ mongoose
 
 app.use('/api/users', userRoutes);
 app.use('/api/resources', resourceRoutes);
+app.use('/api/reports', reportRoutes);
+
 
 
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));

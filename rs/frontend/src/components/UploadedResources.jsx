@@ -1,17 +1,19 @@
 import React, { useEffect, useState, useContext } from 'react';
 import { FaDownload, FaHeart, FaRegCommentDots } from 'react-icons/fa';
 import { UserContext } from './UserContext'; // Adjust path if needed
+import ReportModal from './ReportModal';
+
 
 const baseURL = 'http://localhost:3001';
 
 const UploadedResources = ({ username }) => {
-  const { user } = useContext(UserContext); // current logged-in user (if any)
+  const { user } = useContext(UserContext);
 
   const [resources, setResources] = useState([]);
   const [liked, setLiked] = useState({});
   const [error, setError] = useState(null);
+  const [selectedReport, setSelectedReport] = useState(null); // for modal
 
-  // Format image path same as in UserContext
   const formatImagePath = (path) => {
     if (!path) return 'https://via.placeholder.com/40';
     if (path.startsWith('uploads/')) return `${baseURL}/${path}`;
@@ -22,13 +24,10 @@ const UploadedResources = ({ username }) => {
     try {
       const res = await fetch(`${baseURL}/api/resources/all`);
       const data = await res.json();
-
-      // Filter resources by username if provided as prop
       const filteredResources = username
         ? data.filter((resource) => resource.username === username)
         : data;
 
-      // Add profileImage to each resource uploader info
       const enhancedResources = await Promise.all(
         filteredResources.map(async (res) => {
           try {
@@ -41,7 +40,7 @@ const UploadedResources = ({ username }) => {
                 ? formatImagePath(userData.profileImage.replace(/\\/g, '/'))
                 : 'https://via.placeholder.com/40',
             };
-          } catch (err) {
+          } catch {
             return { ...res, profileImage: 'https://via.placeholder.com/40' };
           }
         })
@@ -66,7 +65,6 @@ const UploadedResources = ({ username }) => {
   };
 
   const saveResource = async (resourceId) => {
-    // Use username from context if available, fallback to localStorage
     const currentUsername = user?.name || localStorage.getItem('username');
     try {
       await fetch(`${baseURL}/api/resources/save`, {
@@ -75,7 +73,7 @@ const UploadedResources = ({ username }) => {
         body: JSON.stringify({ username: currentUsername, resourceId }),
       });
       alert('Saved to your resources!');
-    } catch (err) {
+    } catch {
       alert('Failed to save.');
     }
   };
@@ -88,7 +86,7 @@ const UploadedResources = ({ username }) => {
         {resources.map((res) => (
           <div
             key={res._id}
-            className="bg-white rounded-2xl shadow-lg p-6 min-h-[300px] flex flex-col justify-between transition-transform transform hover:-translate-y-1 hover:shadow-xl"
+            className="bg-white rounded-2xl shadow-lg p-6 flex flex-col justify-between min-h-[300px]"
           >
             {/* Uploader Info */}
             <div className="flex items-center gap-3 mb-4">
@@ -118,7 +116,7 @@ const UploadedResources = ({ username }) => {
             {/* Actions */}
             <div className="flex justify-between items-center mt-4">
               <FaHeart
-                className={`cursor-pointer text-xl transition-colors duration-200 ${
+                className={`cursor-pointer text-xl ${
                   liked[res._id] ? 'text-red-500' : 'text-gray-400'
                 } hover:text-red-500`}
                 onClick={() => toggleLike(res._id)}
@@ -133,12 +131,24 @@ const UploadedResources = ({ username }) => {
                 >
                   <FaDownload />
                 </a>
-                <FaRegCommentDots className="cursor-pointer hover:text-[#2094F3]" />
+                <FaRegCommentDots
+                  className="cursor-pointer hover:text-[#2094F3]"
+                  onClick={() => setSelectedReport(res)}
+                />
               </div>
             </div>
           </div>
         ))}
       </div>
+
+      {/* Report Modal */}
+      {selectedReport && (
+        <ReportModal
+          file={selectedReport}
+          onClose={() => setSelectedReport(null)}
+          reporter={user?.name || localStorage.getItem('username')}
+        />
+      )}
     </div>
   );
 };
