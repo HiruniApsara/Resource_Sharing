@@ -3,7 +3,8 @@ const router = express.Router();
 const {
   registerUser,
   loginUser,
-  getUserByUsername
+  getUserByUsername,
+  deleteUserByUsername
 } = require('../controllers/userController');
 const auth = require('../middleware/auth');
 const upload = require('../middleware/upload');
@@ -30,5 +31,11 @@ router.get('/profile', auth, (req, res) => {
 
 // Get user by username
 router.get('/:username', getUserByUsername);
+
+
+
+
+// Delete user by username
+router.delete('/:username', deleteUserByUsername);
 
 module.exports = router;
