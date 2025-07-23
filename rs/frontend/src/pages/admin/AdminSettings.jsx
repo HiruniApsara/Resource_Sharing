@@ -7,48 +7,27 @@ const AdminSettings = () => {
       <AdminSideBar />
 
       <div className="flex-1 p-8 space-y-10">
-        {/* Notification Settings */}
-        <div className="bg-[#1e293b] p-6 rounded-lg">
-          <h2 className="text-xl font-semibold mb-4">Notification Settings</h2>
-          <div className="space-y-3">
-            <label className="block">
-              <input type="radio" name="notification" className="mr-2" />
-              Email notifications for new reports
-            </label>
-            <label className="block">
-              <input type="radio" name="notification" className="mr-2" />
-              Push notification for urgent reports
-            </label>
-          </div>
-          <button className="mt-6 bg-blue-500 hover:bg-blue-600 text-white py-2 px-6 rounded">
-            Save Changes
-          </button>
-        </div>
 
         {/* Admin Account */}
         <div className="bg-[#1e293b] p-6 rounded-lg">
           <h2 className="text-xl font-semibold mb-4">Admin Account</h2>
           <form className="space-y-4">
             <div>
-              <label className="block text-sm mb-1">Email</label>
+              <label htmlFor="username" className="text-sm">Username</label>
               <input
-                type="email"
-                value="jay1@gmail.com"
-                readOnly
-                className="w-full bg-[#334155] text-gray-300 px-4 py-2 rounded outline-none"
+                type="text"
+                id="username"
+                defaultValue="admin"
+                className="w-full px-4 py-2 rounded bg-[#334155] text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
             <div>
-              <label className="block text-sm mb-1">Change Password</label>
+            <label htmlFor="password" className="text-sm">Password</label>
               <input
                 type="password"
-                placeholder="New password"
-                className="w-full bg-[#334155] text-white px-4 py-2 rounded outline-none"
-              />
-              <input
-                type="password"
-                placeholder="Confirm new password"
-                className="w-full bg-[#334155] text-white px-4 py-2 rounded outline-none mt-2"
+                id="password"
+                defaultValue="1234"
+                className="w-full px-4 py-2 rounded bg-[#334155] text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
             <button className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-6 rounded">
