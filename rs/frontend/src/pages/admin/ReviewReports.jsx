@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import AdminSideBar from '../../components/AdminSidebar';
-import { FaEye, FaTimes, FaTrash } from 'react-icons/fa';
+import { FaEye, FaTrash } from 'react-icons/fa';
 
 const baseURL = 'http://localhost:3001';
 
 const ReviewReports = () => {
   const [reports, setReports] = useState([]);
   const [error, setError] = useState(null);
+  const [selectedReport, setSelectedReport] = useState(null); // store full report
 
   const fetchReports = async () => {
     try {
@@ -18,6 +19,31 @@ const ReviewReports = () => {
       setError('Failed to fetch reports.');
     }
   };
+
+  const handleView = (report) => {
+    setSelectedReport(report);
+  };
+
+  const handleCloseModal = () => {
+    setSelectedReport(null);
+  };
+
+const handleRemove = async (id) => {
+  try {
+    const res = await fetch(`${baseURL}/api/reports/${id}`, {
+      method: 'DELETE',
+    });
+
+    if (res.ok) {
+      setReports(reports.filter((r) => r._id !== id)); // ⬅️ Updates UI
+    } else {
+      console.error('Failed to delete report');
+    }
+  } catch (err) {
+    console.error(err);
+  }
+};
+
 
   useEffect(() => {
     fetchReports();
@@ -38,7 +64,7 @@ const ReviewReports = () => {
               <tr className="bg-[#334155] text-left">
                 <th className="p-2">Report ID</th>
                 <th className="p-2">File Name</th>
-                <th className="p-2">Reason for Report</th>
+                <th className="p-2">Reason</th>
                 <th className="p-2">Reported by</th>
                 <th className="p-2">Date</th>
                 <th className="p-2">Action</th>
@@ -51,18 +77,19 @@ const ReviewReports = () => {
                   <td className="p-2">{report.fileName}</td>
                   <td className="p-2">{report.reason}</td>
                   <td className="p-2">{report.reportedBy}</td>
-                  <td className="p-2">
-                    {new Date(report.date).toLocaleDateString()}
-                  </td>
+                  <td className="p-2">{new Date(report.date).toLocaleDateString()}</td>
                   <td className="p-2">
                     <div className="flex gap-2 flex-wrap">
-                      <button className="text-blue-400 hover:text-blue-300 flex items-center gap-1">
+                      <button
+                        className="text-blue-400 hover:text-blue-300 flex items-center gap-1"
+                        onClick={() => handleView(report)}
+                      >
                         <FaEye /> View
                       </button>
-                      <button className="text-green-400 hover:text-green-300 flex items-center gap-1">
-                        <FaTimes /> Dismiss
-                      </button>
-                      <button className="text-red-400 hover:text-red-300 flex items-center gap-1">
+                      <button
+                        className="text-red-400 hover:text-red-300 flex items-center gap-1"
+                        onClick={() => handleRemove(report._id)}
+                      >
                         <FaTrash /> Remove
                       </button>
                     </div>
@@ -79,6 +106,43 @@ const ReviewReports = () => {
             </tbody>
           </table>
         </div>
+
+        {/* View Modal */}
+        {selectedReport && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70">
+            <div className="bg-white p-6 rounded-xl max-w-3xl w-full relative">
+              <button
+                className="absolute top-3 right-4 text-gray-600 text-2xl hover:text-black"
+                onClick={handleCloseModal}
+              >
+                &times;
+              </button>
+
+              <h2 className="text-xl font-semibold text-gray-800 mb-4">Reported File Preview</h2>
+
+              <div className="mb-4">
+                <p><strong>File Name:</strong> {selectedReport.fileName}</p>
+                <p><strong>Reason:</strong> {selectedReport.reason}</p>
+                <p><strong>Reported by:</strong> {selectedReport.reportedBy}</p>
+                <p><strong>Date:</strong> {new Date(selectedReport.date).toLocaleString()}</p>
+              </div>
+
+              {selectedReport.filePath?.endsWith('.pdf') ? (
+                <iframe
+                  src={`${baseURL}/${selectedReport.filePath.replace(/\\/g, '/')}`}
+                  className="w-full h-[500px] border"
+                  title="PDF Preview"
+                />
+              ) : (
+                <img
+                  src={`${baseURL}/${selectedReport.filePath.replace(/\\/g, '/')}`}
+                  alt="Reported File"
+                  className="w-full h-auto rounded-lg border"
+                />
+              )}
+            </div>
+          </div>
+        )}
       </main>
     </div>
   );
