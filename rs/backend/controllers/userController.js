@@ -110,3 +110,46 @@ exports.deleteUserByUsername = async (req, res) => {
     res.status(500).json({ message: 'Server error', error: err.message });
   }
 };
+
+
+// UPDATE USER BY USERNAME
+exports.updateUserByUsername = async (req, res) => {
+  try {
+    const { username } = req.params;
+    const { displayName, course, year } = req.body;
+
+    // Optional: Handle new profile image if uploaded
+    const profileImage = req.file ? req.file.filename : undefined;
+
+    // Build update object dynamically
+    const updateFields = {
+      ...(displayName && { displayName }),
+      ...(course && { course }),
+      ...(year && { year }),
+      ...(profileImage && { profileImage }),
+    };
+
+    const updatedUser = await User.findOneAndUpdate(
+      { username },
+      { $set: updateFields },
+      { new: true }
+    );
+
+    if (!updatedUser) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    res.json({
+      message: 'User updated successfully',
+      user: {
+        username: updatedUser.username,
+        displayName: updatedUser.displayName,
+        course: updatedUser.course,
+        year: updatedUser.year,
+        profileImage: updatedUser.profileImage,
+      },
+    });
+  } catch (err) {
+    res.status(500).json({ message: 'Server error', error: err.message });
+  }
+};

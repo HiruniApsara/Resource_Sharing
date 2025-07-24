@@ -4,7 +4,8 @@ const {
   registerUser,
   loginUser,
   getUserByUsername,
-  deleteUserByUsername
+  deleteUserByUsername,
+  updateUserByUsername
 } = require('../controllers/userController');
 const auth = require('../middleware/auth');
 const upload = require('../middleware/upload');
@@ -13,7 +14,7 @@ const upload = require('../middleware/upload');
 router.post('/register', upload.single('profileImage'), registerUser);
 router.post('/login', loginUser);
 
-// ✅ Route to get ALL users
+// ✅ Get all users (excluding passwords)
 router.get('/', async (req, res) => {
   try {
     const User = require('../models/User');
@@ -29,13 +30,9 @@ router.get('/profile', auth, (req, res) => {
   res.json({ message: `Welcome ${req.user.username}!`, userId: req.user.id });
 });
 
-// Get user by username
+// CRUD operations by username
 router.get('/:username', getUserByUsername);
-
-
-
-
-// Delete user by username
+router.put('/:username', upload.single('profileImage'), updateUserByUsername); // ✅ Fixed here
 router.delete('/:username', deleteUserByUsername);
 
 module.exports = router;

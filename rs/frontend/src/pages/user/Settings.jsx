@@ -43,10 +43,30 @@ const Settings = () => {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    console.log('Form Submitted:', formData);
-    // You can submit updates to API here
-  };
+  e.preventDefault();
+  try {
+    // Send PUT request to update user info
+    const res = await axios.put(`http://localhost:3001/api/users/${formData.username}`, {
+      displayName: formData.displayName,
+      course: formData.course,
+      year: Number(formData.year), // convert back to number if needed
+      currentPassword: formData.currentPassword,
+      newPassword: formData.newPassword,
+    });
+
+    alert('Profile updated successfully!');
+    // Optionally clear password fields after successful update
+    setFormData(prev => ({
+      ...prev,
+      currentPassword: '',
+      newPassword: '',
+    }));
+  } catch (err) {
+    console.error('Failed to update profile:', err.response?.data || err.message);
+    alert('Failed to update profile.');
+  }
+};
+
 
   return (
     <div className="flex min-h-screen">
