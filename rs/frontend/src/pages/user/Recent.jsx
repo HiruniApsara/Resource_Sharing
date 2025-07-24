@@ -1,30 +1,30 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from "react";
 import Sidebar from "../../components/Sidebar";
-import Topbar from '../../components/TopBar';
-import { FaCloudUploadAlt } from 'react-icons/fa';
-import UploadModal from '../../components/UploadModal'; // ✅ Add this
+import Topbar from "../../components/TopBar";
+import { FaCloudUploadAlt } from "react-icons/fa";
+import UploadModal from "../../components/UploadModal";
 
 const Recent = () => {
   const [resources, setResources] = useState([]);
   const [error, setError] = useState(null);
-  const [isUploadModalOpen, setIsUploadModalOpen] = useState(false); // ✅ Modal state
+  const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
 
   const fetchRecentResources = async () => {
     try {
-      const res = await fetch('http://localhost:3001/api/resources/recent');
+      const res = await fetch("http://localhost:3001/api/resources/recent");
       const data = await res.json();
 
-      const formatted = data.map(item => ({
+      const formatted = data.map((item) => ({
         id: item._id,
         title: item.title,
         year: item.year,
         viewedDate: new Date(item.uploadedAt).toLocaleString(),
-        fileUrl: `http://localhost:3001/${item.fileUrl.replace(/\\/g, '/')}`,
+        fileUrl: `http://localhost:3001/${item.fileUrl.replace(/\\/g, "/")}`,
       }));
 
       setResources(formatted);
     } catch (err) {
-      setError('Failed to fetch recent resources');
+      setError("Failed to fetch recent resources");
     }
   };
 
@@ -33,61 +33,65 @@ const Recent = () => {
   }, []);
 
   return (
-    <div className="flex min-h-screen">
+    <div className="flex min-h-screen bg-gray-50">
       <Sidebar />
-      <main className="flex-1 bg-[#F7F8FB] p-6">
+      <main className="flex-1 p-8">
         <Topbar />
-        
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-xl font-semibold">Recent</h2>
+
+        <div className="flex flex-col sm:flex-row justify-between items-center mb-8 gap-4">
+          <h2 className="text-3xl font-bold text-gray-800 tracking-wide">Recent Uploads</h2>
           <button
-            className="bg-[#2094F3] text-white px-4 py-2 rounded-lg hover:bg-blue-600 text-sm flex items-center gap-2"
-            onClick={() => setIsUploadModalOpen(true)} // ✅ Open modal
+            onClick={() => setIsUploadModalOpen(true)}
+            className="inline-flex items-center gap-2 bg-blue-600 text-white px-5 py-2 rounded-lg shadow-md
+              hover:bg-blue-700 transition-colors duration-300 focus:outline-none focus:ring-4 focus:ring-blue-300"
           >
-            <FaCloudUploadAlt /> Upload Resource
+            <FaCloudUploadAlt size={20} />
+            Upload Resource
           </button>
         </div>
 
         {error && (
-          <p className="text-red-600 mb-4">{error}</p>
+          <p className="text-red-600 mb-6 text-center font-medium">{error}</p>
         )}
 
         {resources.length === 0 ? (
-          <div className="bg-white p-6 rounded-lg text-gray-600 text-center shadow">
+          <div className="bg-white p-10 rounded-xl text-gray-500 text-center shadow-lg">
             No recent uploads found.
           </div>
         ) : (
-          resources.map((res) => (
-            <div
-              key={res.id}
-              className="bg-white rounded-lg shadow-sm p-4 flex justify-between items-start mb-4"
-            >
-              <div>
-                <h3 className="font-semibold text-black">{res.title}</h3>
-                <p className="text-sm text-gray-600">{res.year}</p>
-                <p className="text-xs text-gray-400">Viewed on {res.viewedDate}</p>
-              </div>
-              <div className="flex items-center">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {resources.map((res) => (
+              <div
+                key={res.id}
+                className="bg-white rounded-xl shadow-md p-6 flex flex-col justify-between
+                hover:shadow-xl transition-shadow duration-300"
+              >
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2 line-clamp-2">{res.title}</h3>
+                  <p className="text-sm text-gray-600 mb-1">Year: {res.year}</p>
+                  <p className="text-xs text-gray-400 italic">Viewed on {res.viewedDate}</p>
+                </div>
+
                 <a
                   href={res.fileUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="bg-[#2094F3] text-white text-sm px-3 py-1 rounded-lg hover:bg-blue-600"
+                  className="mt-6 inline-block text-center bg-blue-600 text-white text-sm font-medium px-4 py-2 rounded-lg
+                    hover:bg-blue-700 focus:ring-2 focus:ring-blue-400 focus:outline-none transition-colors"
                 >
-                  Revisit
+                  Revisit Resource
                 </a>
               </div>
-            </div>
-          ))
+            ))}
+          </div>
         )}
 
-        {/* ✅ Upload Modal */}
         <UploadModal
           isOpen={isUploadModalOpen}
           onClose={() => setIsUploadModalOpen(false)}
           onUpload={(files) => {
             console.log("Files uploaded:", files);
-            fetchRecentResources(); // Refresh recent list
+            fetchRecentResources();
             setIsUploadModalOpen(false);
           }}
         />

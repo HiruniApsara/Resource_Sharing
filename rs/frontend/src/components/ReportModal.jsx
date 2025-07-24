@@ -18,6 +18,7 @@ const ReportModal = ({ file, onClose, reporter }) => {
         body: JSON.stringify({
           resourceId: file._id,
           fileName: file.title,
+          fileUrl: file.fileUrl, // ✅ Include fileUrl
           reason,
           reportedBy: reporter,
           date: new Date(),
