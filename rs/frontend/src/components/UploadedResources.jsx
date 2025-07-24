@@ -64,19 +64,20 @@ const UploadedResources = ({ username }) => {
     }));
   };
 
+   // ✅ Save Resource Function
   const saveResource = async (resourceId) => {
-    const currentUsername = user?.name || localStorage.getItem('username');
-    try {
-      await fetch(`${baseURL}/api/resources/save`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username: currentUsername, resourceId }),
-      });
-      alert('Saved to your resources!');
-    } catch {
-      alert('Failed to save.');
-    }
-  };
+  const username = localStorage.getItem('username'); // Get username instead of userId
+  try {
+    await fetch('http://localhost:3001/api/resources/save', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, resourceId }),
+    });
+    alert('Saved to your resources!');
+  } catch (err) {
+    alert('Failed to save.');
+  }
+};
 
   return (
     <div className="mt-12 px-4 sm:px-8">

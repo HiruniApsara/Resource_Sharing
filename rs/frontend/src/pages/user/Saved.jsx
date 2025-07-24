@@ -1,13 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import Sidebar from "../../components/Sidebar";
 import TopBar from '../../components/TopBar';
-import { FaCloudUploadAlt, FaDownload, FaHeart, FaRegCommentDots } from 'react-icons/fa';
-import UploadModal from '../../components/UploadModal'; // Make sure this path is correct
+import { FaCloudUploadAlt } from 'react-icons/fa';
+import { FaDownload, FaHeart, FaRegCommentDots } from 'react-icons/fa';
 
 const Saved = () => {
   const [savedResources, setSavedResources] = useState([]);
   const [error, setError] = useState(null);
-  const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
 
   const fetchSavedResources = async () => {
     const username = localStorage.getItem('username');
@@ -24,17 +23,20 @@ const Saved = () => {
     fetchSavedResources();
   }, []);
 
+  const handleUploadClick = () => {
+    alert('Upload modal or navigation can go here!');
+  };
+
   return (
     <div className="flex min-h-screen">
       <Sidebar />
       <main className="flex-1 bg-[#F7F8FB] p-6">
         <TopBar />
-        
         {/* Header */}
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-semibold">Saved</h2>
           <button
-            onClick={() => setIsUploadModalOpen(true)}
+            onClick={handleUploadClick}
             className="bg-[#2094F3] text-white px-4 py-2 rounded-lg hover:bg-blue-600 text-sm flex items-center gap-2 focus:outline-none focus:ring-0"
           >
             <FaCloudUploadAlt />
@@ -42,10 +44,8 @@ const Saved = () => {
           </button>
         </div>
 
-        {/* Error Message */}
+        {/* Saved Resources */}
         {error && <p className="text-red-600 text-center">{error}</p>}
-
-        {/* Saved Resources Display */}
         {savedResources.length === 0 ? (
           <div className="bg-white rounded-lg p-10 text-center shadow-sm">
             <p className="text-gray-700 font-medium mb-2">No resources saved yet</p>
@@ -86,7 +86,7 @@ const Saved = () => {
 
                 {/* Actions */}
                 <div className="flex justify-between items-center mt-4">
-                  <FaHeart />
+                  <FaHeart  />
                   <div className="flex items-center gap-4 text-gray-500 text-lg">
                     <a
                       href={`http://localhost:3001/${res.fileUrl.replace(/\\/g, '/')}`}
@@ -103,18 +103,6 @@ const Saved = () => {
             ))}
           </div>
         )}
-
-        {/* Upload Modal */}
-        <UploadModal
-          isOpen={isUploadModalOpen}
-          onClose={() => setIsUploadModalOpen(false)}
-          onUpload={(files) => {
-            console.log("Files uploaded:", files);
-            setIsUploadModalOpen(false);
-            // Optional: You can re-fetch resources if needed
-            fetchSavedResources();
-          }}
-        />
       </main>
     </div>
   );
