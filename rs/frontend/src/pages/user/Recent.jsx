@@ -38,12 +38,11 @@ const Recent = () => {
       <main className="flex-1 p-8">
         <Topbar />
 
-        <div className="flex flex-col sm:flex-row justify-between items-center mb-8 gap-4">
-          <h2 className="text-3xl font-bold text-gray-800 tracking-wide">Recent Uploads</h2>
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-xl font-semibold">Recent Uploads</h2>
           <button
             onClick={() => setIsUploadModalOpen(true)}
-            className="inline-flex items-center gap-2 bg-blue-600 text-white px-5 py-2 rounded-lg shadow-md
-              hover:bg-blue-700 transition-colors duration-300 focus:outline-none focus:ring-4 focus:ring-blue-300"
+            className="bg-[#2094F3] text-white px-5 py-2 rounded-lg hover:bg-blue-600 text-sm flex items-center gap-2 focus:outline-none focus:ring-0"
           >
             <FaCloudUploadAlt size={20} />
             Upload Resource
@@ -66,21 +65,22 @@ const Recent = () => {
                 className="bg-white rounded-xl shadow-md p-6 flex flex-col justify-between
                 hover:shadow-xl transition-shadow duration-300"
               >
-                <div>
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2 line-clamp-2">{res.title}</h3>
-                  <p className="text-sm text-gray-600 mb-1">Year: {res.year}</p>
-                  <p className="text-xs text-gray-400 italic">Viewed on {res.viewedDate}</p>
-                </div>
+<div>
+  <h3 className="text-lg font-semibold text-gray-900 mb-2 line-clamp-2">{res.title}</h3>
+  <p className="text-sm text-gray-600 mb-1">Year: {res.year}</p>
+  <p className="text-xs text-gray-400 italic">Viewed on {res.viewedDate}</p>
+</div>
 
-                <a
-                  href={res.fileUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="mt-6 inline-block text-center bg-blue-600 text-white text-sm font-medium px-4 py-2 rounded-lg
-                    hover:bg-blue-700 focus:ring-2 focus:ring-blue-400 focus:outline-none transition-colors"
-                >
-                  Revisit Resource
-                </a>
+<a
+  href={res.fileUrl}
+  target="_blank"
+  rel="noopener noreferrer"
+  className="mt-6 inline-block text-center bg-[#2094F3] text-white text-sm font-medium px-4 py-2 rounded-lg
+    hover:bg-blue-700 focus:ring-2 focus:ring-blue-400 focus:outline-none transition-colors"
+>
+  Revisit Resource
+</a>
+
               </div>
             ))}
           </div>
