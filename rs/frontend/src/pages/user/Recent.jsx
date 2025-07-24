@@ -76,7 +76,7 @@ const Recent = () => {
   target="_blank"
   rel="noopener noreferrer"
   className="mt-6 inline-block text-center bg-[#2094F3] text-white text-sm font-medium px-4 py-2 rounded-lg
-    hover:bg-blue-700 focus:ring-2 focus:ring-blue-400 focus:outline-none transition-colors"
+    hover:bg-blue-600 focus:ring-2 focus:ring-blue-400 focus:outline-none transition-colors"
 >
   Revisit Resource
 </a>
