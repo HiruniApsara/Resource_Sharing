@@ -155,9 +155,9 @@ const Register = () => {
                 className="w-full mt-1 px-4 py-2 border border-gray-600 rounded-md bg-black text-white"
               >
                 <option value="">Select course</option>
-                <option value="bitc">BICT</option>
-                <option value="bsc-it">BSc in IT</option>
-                <option value="biz">Business Studies</option>
+                <option value="BICT">BICT</option>
+                <option value="BSC in IT">BSc in IT</option>
+                <option value="Business Studies">Business Studies</option>
               </select>
             </div>
 
