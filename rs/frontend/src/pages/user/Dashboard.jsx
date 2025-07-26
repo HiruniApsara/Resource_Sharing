@@ -38,8 +38,10 @@ const subjectsByYear = {
 };
 
 const Dashboard = () => {
+  const [searchTerm, setSearchTerm] = useState('');
   const [selectedYear, setSelectedYear] = useState('');
   const [selectedSubject, setSelectedSubject] = useState('');
+  const [selectedType, setSelectedType] = useState(''); // PDF or Video
   const [selectedResource, setSelectedResource] = useState(null);
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
 
@@ -105,13 +107,26 @@ const Dashboard = () => {
           </select>
 
           {/* Resource Type */}
-          <select className="border px-3 py-2 rounded text-sm">
-            <option>Resource Type</option>
-            <option>PDF</option>
-            <option>Video</option>
+          <select
+            className="border px-3 py-2 rounded text-sm"
+            value={selectedType}
+            onChange={(e) => setSelectedType(e.target.value)}
+          >
+            <option value="">Resource Type</option>
+            <option value="pdf">PDF</option>
+            <option value="video">Video</option>
           </select>
 
-          {/* Sort by */}
+          {/* Search Input */}
+          <input
+            type="text"
+            placeholder="Search by title..."
+            className="border px-3 py-2 rounded text-sm"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+
+          {/* Sort (not implemented here yet) */}
           <div className="ml-auto">
             <label className="text-sm mr-2">Sort by:</label>
             <select className="border px-3 py-2 rounded text-sm">
@@ -121,10 +136,14 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* Show all uploaded resources */}
-        <UploadedResources />
-
-      
+        {/* Resource List */}
+        <UploadedResources
+          searchTerm={searchTerm}
+          selectedYear={selectedYear}
+          selectedSubject={selectedSubject}
+          selectedType={selectedType}
+          onPreview={handlePreview}
+        />
 
         {/* Preview modal */}
         {selectedResource && <PreviewPage resource={selectedResource} onClose={closePreview} />}

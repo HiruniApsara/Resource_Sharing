@@ -1,18 +1,24 @@
 import React, { useEffect, useState, useContext } from 'react';
 import { FaDownload, FaHeart, FaRegCommentDots } from 'react-icons/fa';
-import { UserContext } from './UserContext'; // Adjust path if needed
+import { UserContext } from './UserContext';
 import ReportModal from './ReportModal';
-
 
 const baseURL = 'http://localhost:3001';
 
-const UploadedResources = ({ username }) => {
+const UploadedResources = ({
+  username,
+  searchTerm = '',
+  selectedYear = '',
+  selectedSubject = '',
+  selectedType = '',
+  onPreview
+}) => {
   const { user } = useContext(UserContext);
 
-  const [resources, setResources] = useState([]);
+  const [allResources, setAllResources] = useState([]);
   const [liked, setLiked] = useState({});
   const [error, setError] = useState(null);
-  const [selectedReport, setSelectedReport] = useState(null); // for modal
+  const [selectedReport, setSelectedReport] = useState(null);
 
   const formatImagePath = (path) => {
     if (!path) return 'https://via.placeholder.com/40';
@@ -24,8 +30,9 @@ const UploadedResources = ({ username }) => {
     try {
       const res = await fetch(`${baseURL}/api/resources/all`);
       const data = await res.json();
+
       const filteredResources = username
-        ? data.filter((resource) => resource.username === username)
+        ? data.filter((r) => r.username === username)
         : data;
 
       const enhancedResources = await Promise.all(
@@ -41,15 +48,18 @@ const UploadedResources = ({ username }) => {
                 : 'https://via.placeholder.com/40',
             };
           } catch {
-            return { ...res, profileImage: 'https://via.placeholder.com/40' };
+            return {
+              ...res,
+              profileImage: 'https://via.placeholder.com/40',
+            };
           }
         })
       );
 
-      setResources(enhancedResources);
+      setAllResources(enhancedResources);
     } catch (err) {
       console.error(err);
-      setError('Failed to fetch resources');
+      setError('Failed to fetch resources.');
     }
   };
 
@@ -64,27 +74,36 @@ const UploadedResources = ({ username }) => {
     }));
   };
 
-   // ✅ Save Resource Function
   const saveResource = async (resourceId) => {
-  const username = localStorage.getItem('username'); // Get username instead of userId
-  try {
-    await fetch('http://localhost:3001/api/resources/save', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username, resourceId }),
-    });
-    alert('Saved to your resources!');
-  } catch (err) {
-    alert('Failed to save.');
-  }
-};
+    const username = localStorage.getItem('username');
+    try {
+      await fetch(`${baseURL}/api/resources/save`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, resourceId }),
+      });
+      alert('Saved to your resources!');
+    } catch (err) {
+      alert('Failed to save.');
+    }
+  };
+
+  // ✅ Filtering logic
+  const filteredResources = allResources.filter((res) => {
+    const matchTitle = res.title.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchYear = selectedYear ? res.year === selectedYear : true;
+    const matchSubject = selectedSubject ? res.subject === selectedSubject : true;
+    const matchType = selectedType ? res.resourceType.toLowerCase() === selectedType.toLowerCase() : true;
+
+    return matchTitle && matchYear && matchSubject && matchType;
+  });
 
   return (
     <div className="mt-12 px-4 sm:px-8">
       {error && <p className="text-red-600 text-center mb-4">{error}</p>}
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-        {resources.map((res) => (
+        {filteredResources.map((res) => (
           <div
             key={res._id}
             className="bg-white rounded-2xl shadow-lg p-6 flex flex-col justify-between min-h-[300px]"
@@ -105,7 +124,7 @@ const UploadedResources = ({ username }) => {
             </div>
 
             {/* Resource Details */}
-            <div className="flex-1">
+            <div className="flex-1 cursor-pointer" onClick={() => onPreview?.(res)}>
               <p className="text-lg font-semibold text-gray-900 mb-1 line-clamp-1">
                 {res.title}
               </p>
