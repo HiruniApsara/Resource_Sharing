@@ -16,16 +16,18 @@ const UploadedResources = ({
   const { user } = useContext(UserContext);
 
   const [allResources, setAllResources] = useState([]);
-  const [liked, setLiked] = useState({});
+  const [likedResources, setLikedResources] = useState({});
   const [error, setError] = useState(null);
   const [selectedReport, setSelectedReport] = useState(null);
 
+  // Helper to build profile image URL
   const formatImagePath = (path) => {
     if (!path) return 'https://via.placeholder.com/40';
     if (path.startsWith('uploads/')) return `${baseURL}/${path}`;
     return `${baseURL}/uploads/profile_images/${path}`;
   };
 
+  // Fetch all resources & user profile images, then mark liked by current user
   const fetchResources = async () => {
     try {
       const res = await fetch(`${baseURL}/api/resources/all`);
@@ -35,6 +37,7 @@ const UploadedResources = ({
         ? data.filter((r) => r.username === username)
         : data;
 
+      // Enrich each resource with uploader's profile image
       const enhancedResources = await Promise.all(
         filteredResources.map(async (res) => {
           try {
@@ -56,6 +59,14 @@ const UploadedResources = ({
         })
       );
 
+      // Determine like status for current user
+      const currentUsername = user?.username || localStorage.getItem('username');
+      const likeMap = {};
+      enhancedResources.forEach((res) => {
+        likeMap[res._id] = Array.isArray(res.likes) && res.likes.includes(currentUsername);
+      });
+
+      setLikedResources(likeMap);
       setAllResources(enhancedResources);
     } catch (err) {
       console.error(err);
@@ -67,15 +78,43 @@ const UploadedResources = ({
     fetchResources();
   }, [username]);
 
-  const toggleLike = (id) => {
-    setLiked((prev) => ({
-      ...prev,
-      [id]: !prev[id],
-    }));
+  // Toggle like on backend and update local like state
+  const handleLike = async (resourceId) => {
+    const username = user?.username || localStorage.getItem('username');
+    try {
+      await fetch(`${baseURL}/api/resources/${resourceId}/like`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username }),
+      });
+
+      // Optimistically update like locally
+      setLikedResources((prev) => ({
+        ...prev,
+        [resourceId]: !prev[resourceId],
+      }));
+
+      // Refresh resources to update likes count and state
+      fetchResources();
+    } catch (err) {
+      console.error('Failed to toggle like:', err);
+    }
   };
 
+  // Increment download count and open file
+  const handleDownload = async (res) => {
+    try {
+      await fetch(`${baseURL}/api/resources/${res._id}/download`, { method: 'POST' });
+
+      window.open(`${baseURL}/${res.fileUrl.replace(/\\/g, '/')}`, '_blank');
+    } catch (err) {
+      console.error('Failed to count download:', err);
+    }
+  };
+
+  // Save resource to user saved list
   const saveResource = async (resourceId) => {
-    const username = localStorage.getItem('username');
+    const username = user?.username || localStorage.getItem('username');
     try {
       await fetch(`${baseURL}/api/resources/save`, {
         method: 'POST',
@@ -88,13 +127,12 @@ const UploadedResources = ({
     }
   };
 
-  // ✅ Filtering logic
+  // Filter resources based on props
   const filteredResources = allResources.filter((res) => {
     const matchTitle = res.title.toLowerCase().includes(searchTerm.toLowerCase());
     const matchYear = selectedYear ? res.year === selectedYear : true;
     const matchSubject = selectedSubject ? res.subject === selectedSubject : true;
     const matchType = selectedType ? res.resourceType.toLowerCase() === selectedType.toLowerCase() : true;
-
     return matchTitle && matchYear && matchSubject && matchType;
   });
 
@@ -135,22 +173,21 @@ const UploadedResources = ({
 
             {/* Actions */}
             <div className="flex justify-between items-center mt-4">
-              <FaHeart
-                className={`cursor-pointer text-xl ${
-                  liked[res._id] ? 'text-red-500' : 'text-gray-400'
-                } hover:text-red-500`}
-                onClick={() => toggleLike(res._id)}
-              />
+              <div className="flex items-center gap-2">
+                <FaHeart
+                  className={`cursor-pointer text-xl ${
+                    likedResources[res._id] ? 'text-red-500' : 'text-gray-400'
+                  } hover:text-red-500`}
+                  onClick={() => handleLike(res._id)}
+                />
+             
+              </div>
+
               <div className="flex items-center gap-4 text-gray-500 text-lg">
-                <a
-                  href={`${baseURL}/${res.fileUrl.replace(/\\/g, '/')}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="hover:text-[#2094F3]"
-                  onClick={() => saveResource(res._id)}
-                >
-                  <FaDownload />
-                </a>
+                <FaDownload
+                  className="cursor-pointer hover:text-[#2094F3]"
+                  onClick={() => handleDownload(res)}
+                />
                 <FaRegCommentDots
                   className="cursor-pointer hover:text-[#2094F3]"
                   onClick={() => setSelectedReport(res)}
