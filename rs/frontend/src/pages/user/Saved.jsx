@@ -11,7 +11,8 @@ const Saved = () => {
   const fetchSavedResources = async () => {
     const username = localStorage.getItem('username');
     try {
-      const res = await fetch(`http://localhost:3001/api/resources/saved/${username}`);
+   const res = await fetch(`http://localhost:3001/api/users/${username}/saved`);
+
       const data = await res.json();
       setSavedResources(data);
     } catch (err) {

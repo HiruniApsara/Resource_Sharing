@@ -102,15 +102,18 @@ const UploadedResources = ({
   };
 
   // Increment download count and open file
-  const handleDownload = async (res) => {
-    try {
-      await fetch(`${baseURL}/api/resources/${res._id}/download`, { method: 'POST' });
+const handleDownload = async (res) => {
+  try {
+    await fetch(`${baseURL}/api/resources/${res._id}/download`, { method: 'POST' });
 
-      window.open(`${baseURL}/${res.fileUrl.replace(/\\/g, '/')}`, '_blank');
-    } catch (err) {
-      console.error('Failed to count download:', err);
-    }
-  };
+    // ✅ Save after download
+    await saveResource(res._id);
+
+    window.open(`${baseURL}/${res.fileUrl.replace(/\\/g, '/')}`, '_blank');
+  } catch (err) {
+    console.error('Failed to count download or save resource:', err);
+  }
+};
 
   // Save resource to user saved list
   const saveResource = async (resourceId) => {

@@ -1,6 +1,6 @@
 import React, { useState, useContext, useEffect } from 'react';
 import Sidebar from '../../components/Sidebar';
-import Topbar from '../../components/TopBar';
+
 import { UserContext } from '../../components/UserContext';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -109,8 +109,7 @@ const Profile = () => {
   return (
     <div className="flex min-h-screen">
       <Sidebar />
-      <main className="flex-1 bg-[#F7F8FB] p-6">
-        <Topbar />
+
         <main className="flex-1 p-4">
           <h2 className="text-2xl font-semibold mb-6">My Profile</h2>
 
@@ -176,7 +175,7 @@ const Profile = () => {
             {/* No save button since you said no saving needed */}
           </div>
         </main>
-      </main>
+    
       <ToastContainer position="bottom-right" autoClose={3000} />
     </div>
   );

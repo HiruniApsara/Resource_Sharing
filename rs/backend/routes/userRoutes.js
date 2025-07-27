@@ -5,7 +5,9 @@ const {
   loginUser,
   getUserByUsername,
   deleteUserByUsername,
-  updateUserByUsername
+  updateUserByUsername,
+  getSavedResources,
+  saveResource,
 } = require('../controllers/userController');
 const auth = require('../middleware/auth');
 const upload = require('../middleware/upload');
@@ -34,5 +36,7 @@ router.get('/profile', auth, (req, res) => {
 router.get('/:username', getUserByUsername);
 router.put('/:username', upload.single('profileImage'), updateUserByUsername); // ✅ Fixed here
 router.delete('/:username', deleteUserByUsername);
+router.get('/:username/saved', getSavedResources);
+router.post('/:username/saved/:resourceId', saveResource);
 
 module.exports = router;

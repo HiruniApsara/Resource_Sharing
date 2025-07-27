@@ -153,3 +153,41 @@ exports.updateUserByUsername = async (req, res) => {
     res.status(500).json({ message: 'Server error', error: err.message });
   }
 };
+
+
+
+// GET /api/users/:username/saved
+exports.getSavedResources = async (req, res) => {
+  try {
+    const user = await User.findOne({ username: req.params.username }).populate('savedResources');
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    res.json(user.savedResources);
+  } catch (error) {
+    console.error('Fetch saved resources error:', error);
+    res.status(500).json({ message: 'Failed to fetch saved resources' });
+  }
+};
+
+
+exports.saveResource = async (req, res) => {
+  try {
+    const { username, resourceId } = req.params;
+
+    const user = await User.findOne({ username });
+    if (!user) return res.status(404).json({ message: 'User not found' });
+
+    if (!user.savedResources.includes(resourceId)) {
+      user.savedResources.push(resourceId);
+      await user.save();
+    }
+
+    res.status(200).json({ message: 'Resource saved successfully' });
+  } catch (err) {
+    console.error('Error saving resource:', err);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
