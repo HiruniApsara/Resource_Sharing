@@ -66,20 +66,7 @@ const TopBar = () => {
     // For example: navigate(`/resource/${notification.resourceId}`);
   };
 
-  const getNotificationIcon = (type) => {
-    switch(type) {
-      case 'like':
-        return '👍';
-      case 'comment':
-        return '💬';
-      case 'new_resource':
-        return '📚';
-      case 'reply':
-        return '↩️';
-      default:
-        return '🔔';
-    }
-  };
+
 
   return (
     <div className="flex justify-between items-center mb-6 relative">

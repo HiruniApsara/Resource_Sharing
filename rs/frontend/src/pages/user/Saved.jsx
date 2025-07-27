@@ -65,11 +65,12 @@ const Saved = () => {
               >
                 {/* Uploader Info */}
                 <div className="flex items-center gap-3 mb-4">
-                  <img
-                    src="https://via.placeholder.com/40"
-                    alt="avatar"
-                    className="w-10 h-10 rounded-full object-cover border"
-                  />
+                 <img
+  src={`http://localhost:3001/${res.profileImage?.replace(/\\/g, '/') || 'default.jpg'}`}
+  alt="avatar"
+  className="w-10 h-10 rounded-full object-cover border"
+/>
+
                   <div>
                     <p className="text-sm font-semibold text-gray-800">{res.username}</p>
                     <p className="text-xs text-gray-500">{new Date(res.uploadedAt).toLocaleString()}</p>
