@@ -15,7 +15,7 @@ import AdminDashboard from './pages/admin/adminDashboard';
 import ManageFiles from './pages/admin/ManageFiles';
 import ReviewReports from './pages/admin/ReviewReports';
 import UserManagement from './pages/admin/UserManagement';
-import Analytixs from './pages/admin/Analytics';
+import Analytics from './pages/admin/Analytics';
 import AdminSettings from './pages/admin/AdminSettings';
 
 function App() {
@@ -37,7 +37,7 @@ function App() {
         <Route path="/manage-files" element={<ManageFiles />} />
         <Route path="/review-reports" element={<ReviewReports />} />
         <Route path="/user-management" element={<UserManagement />} />
-        <Route path="/admin-analytics" element={<Analytixs />} />
+        <Route path="/admin-analytics" element={<Analytics />} />
         <Route path="/admin-settings" element={<AdminSettings />} />
         {/* You can add more routes here */}
       </Routes>
