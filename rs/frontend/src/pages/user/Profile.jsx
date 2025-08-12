@@ -106,8 +106,8 @@ const Profile = () => {
           {/* Likes + Save Changes Button */}
           <div className="mb-4 flex justify-between items-center text-sm text-gray-700">
             <div>
-              <p><strong>Total Likes:</strong> {likes}</p>
-              <p><strong>Total Downloads:</strong> {downloads}</p>
+              <p><strong></strong> </p>
+              <p><strong></strong> </p>
             </div>
 
             <button
