@@ -1,0 +1,1 @@
+NoteNest is a MERN-stack web platform for University of Vavuniya students to securely share, manage, and access study resources with advanced filtering, interaction, and administrative analytics tools.
